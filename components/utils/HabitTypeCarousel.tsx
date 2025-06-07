@@ -33,7 +33,7 @@ export default function HabitTypeCarousel() {
 
 const styles = StyleSheet.create({
     scroll: {
-        marginBottom: 20,
+        marginBottom: 10,
     },
     item: {
         backgroundColor: '#fff',

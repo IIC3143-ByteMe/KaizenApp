@@ -135,10 +135,10 @@ export default function AddHabitScreen() {
 const styles = StyleSheet.create({
     container: { 
         flex: 1, 
-        backgroundColor: '#F6F6F6' 
+        backgroundColor: '#F6F6F6',
+        padding: 20,
     },
     header: {
-        padding: 20,
         paddingBottom: 10,
     },
     title: {
@@ -152,9 +152,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     listContent: { 
-        padding: 20,
-        paddingTop: 0,
-        paddingBottom: 100,
+        paddingTop: 4,
+        paddingBottom: 60,
     },
     floatingButton: {
         position: 'absolute',

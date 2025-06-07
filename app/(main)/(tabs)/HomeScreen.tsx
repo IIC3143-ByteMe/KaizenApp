@@ -33,6 +33,5 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     headerContainer: {
-        marginBottom: 10,
     },
 });

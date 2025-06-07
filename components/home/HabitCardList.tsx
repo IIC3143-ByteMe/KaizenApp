@@ -69,7 +69,7 @@ export default function HabitCardList() {
 
 const styles = StyleSheet.create({
     listContainer: { 
-        padding: 16,
+        padding: 4,
     },
     loadingContainer: {
         flex: 1,
