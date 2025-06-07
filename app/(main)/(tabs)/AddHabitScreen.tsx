@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HabitTemplateItem from '@components/add-habit/HabitTemplateItem';
-import AddHabitModal from '@components/add-habit/AddHabitModal';
+import AddHabitModal, { HabitTemplate } from '@components/add-habit/AddHabitModal';
 import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 
 const HABIT_TEMPLATES = [
@@ -66,6 +66,22 @@ const HABIT_TEMPLATES = [
 
 export default function AddHabitScreen() {
     const [modalVisible, setModalVisible] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<HabitTemplate | undefined>(undefined);
+
+    const handleTemplatePress = (template: HabitTemplate) => {
+        setSelectedTemplate(template);
+        setModalVisible(true);
+    };
+
+    const handleCreateNew = () => {
+        setSelectedTemplate(undefined);
+        setModalVisible(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalVisible(false);
+        setTimeout(() => setSelectedTemplate(undefined), 300);
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -87,14 +103,14 @@ export default function AddHabitScreen() {
                             description={item.description}
                             icon={item.icon}
                             color={item.color}
-                            onPress={() => setModalVisible(true)}
+                            onPress={() => handleTemplatePress(item)}
                         />
                     )}
                 />
 
                 <TouchableOpacity 
                     style={styles.floatingButton}
-                    onPress={() => setModalVisible(true)}
+                    onPress={handleCreateNew}
                 >
                     <Ionicons name="add" size={28} color="#fff" />
                 </TouchableOpacity>
@@ -102,7 +118,8 @@ export default function AddHabitScreen() {
 
             <AddHabitModal 
                 visible={modalVisible} 
-                onClose={() => setModalVisible(false)} 
+                onClose={handleCloseModal} 
+                selectedTemplate={selectedTemplate}
             />
         </SafeAreaView>
     );

@@ -1,19 +1,26 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 
-export default function HabitTextInputs() {
+interface HabitTextInputsProps {
+    initialTitle?: string;
+    initialDescription?: string;
+}
+
+export default function HabitTextInputs({ initialTitle = '', initialDescription = '' }: HabitTextInputsProps) {
     return (
     <View style={styles.container}>
         <TextInput
             placeholder="Nombre"
             style={styles.name_input}
-            placeholderTextColor="#999"
+            placeholderTextColor="#777"
+            defaultValue={initialTitle}
         />
         <TextInput
             placeholder="Descripción"
             style={styles.description_input}
             multiline
-            placeholderTextColor="#999"
+            placeholderTextColor="#777"
+            defaultValue={initialDescription}
         />
     </View>
     );

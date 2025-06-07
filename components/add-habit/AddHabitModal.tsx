@@ -14,12 +14,21 @@ import IconColorSelectors from './IconColorSelectors';
 import HabitScheduleCard from './HabitScheduleCard';
 import AddButton from './AddButton';
 
+export interface HabitTemplate {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    color: string;
+}
+
 interface AddHabitModalProps {
     visible: boolean;
     onClose: () => void;
+    selectedTemplate?: HabitTemplate;
 }
 
-export default function AddHabitModal({ visible, onClose }: AddHabitModalProps) {
+export default function AddHabitModal({ visible, onClose, selectedTemplate }: AddHabitModalProps) {
     return (
         <Modal
             visible={visible}
@@ -33,9 +42,15 @@ export default function AddHabitModal({ visible, onClose }: AddHabitModalProps) 
                     </TouchableOpacity>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollContent}>
-                    <HabitFormHeader />
-                    <HabitTextInputs />
-                    <IconColorSelectors />
+                    <HabitFormHeader isTemplate={!!selectedTemplate} />
+                    <HabitTextInputs 
+                        initialTitle={selectedTemplate?.title}
+                        initialDescription={selectedTemplate?.description}
+                    />
+                    <IconColorSelectors 
+                        initialIcon={selectedTemplate?.icon}
+                        initialColor={selectedTemplate?.color}
+                    />
                     <HabitScheduleCard />
                     <AddButton />
                 </ScrollView>
