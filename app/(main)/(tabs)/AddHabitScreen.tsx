@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import HabitTemplateItem from '@components/add-habit/HabitTemplateItem';
 import AddHabitModal, { HabitTemplate } from '@components/add-habit/AddHabitModal';
 import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
@@ -65,6 +66,7 @@ const HABIT_TEMPLATES = [
 ];
 
 export default function AddHabitScreen() {
+    const router = useRouter();
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<HabitTemplate | undefined>(undefined);
 
@@ -81,6 +83,10 @@ export default function AddHabitScreen() {
     const handleCloseModal = () => {
         setModalVisible(false);
         setTimeout(() => setSelectedTemplate(undefined), 300);
+    };
+
+    const handleHabitAdded = () => {
+        router.replace('/(main)/(tabs)');
     };
 
     return (
@@ -120,6 +126,7 @@ export default function AddHabitScreen() {
                 visible={modalVisible} 
                 onClose={handleCloseModal} 
                 selectedTemplate={selectedTemplate}
+                onHabitAdded={handleHabitAdded}
             />
         </SafeAreaView>
     );

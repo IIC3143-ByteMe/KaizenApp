@@ -1,9 +1,18 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-export default function AddButton() {
+interface AddButtonProps {
+    onPress?: () => void;
+    disabled?: boolean;
+}
+
+export default function AddButton({ onPress, disabled = false }: AddButtonProps) {
     return (
-    <TouchableOpacity style={styles.button}>
+    <TouchableOpacity 
+        style={[styles.button, disabled && styles.buttonDisabled]} 
+        onPress={onPress}
+        disabled={disabled}
+    >
         <Text style={styles.text}>Agregar</Text>
     </TouchableOpacity>
     );
@@ -16,6 +25,9 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         alignItems: 'center',
         marginTop: 20,
+    },
+    buttonDisabled: {
+        backgroundColor: '#C5CAE9',
     },
     text: {
         color: 'white',

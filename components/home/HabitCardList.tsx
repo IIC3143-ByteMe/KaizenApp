@@ -1,23 +1,48 @@
-import React from 'react';
-import { FlatList, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { FlatList, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import HabitCard from '@components/home/HabitCard';
+import { getHabits, Habit } from '@services/habitStorage';
 
-const habits = [
-    { id: '1', title: "Estudiar", completed: 0, total: 60 },
-    { id: '2', title: "Meditar", completed: 10, total: 10 },
-    { id: '3', title: "Salir a caminar", completed: 20, total: 20 },
-    { id: '4', title: "Hacer KaizenApp", completed: 10, total: 100 },
-    { id: '5', title: "Entrega 2", completed: 100, total: 100 },
-    { id: '6', title: "Leer un libro", completed: 30, total: 30 },
-    { id: '7', title: "Practicar deporte", completed: 15, total: 15 },
-    { id: '8', title: "Cocinar", completed: 5, total: 5 },
-    { id: '9', title: "Aprender algo nuevo", completed: 25, total: 25 },
-    { id: '10', title: "Hacer ejercicio", completed: 40, total: 40 }
-];
-
-export default function HabitCardContainer() {
+export default function HabitCardList() {
     const router = useRouter();
+    const [habits, setHabits] = useState<Habit[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadHabits();
+    }, []);
+
+    const loadHabits = async () => {
+        try {
+            setLoading(true);
+            const savedHabits = await getHabits();
+            setHabits(savedHabits);
+        } catch (error) {
+            console.error('Error loading habits:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#94A9FF" />
+            </View>
+        );
+    }
+
+    if (habits.length === 0) {
+        return (
+            <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No tienes hábitos guardados</Text>
+                <Text style={styles.emptySuggestion}>
+                    Agrega uno nuevo desde la pestaña "Agregar"
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <FlatList
@@ -25,9 +50,14 @@ export default function HabitCardContainer() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
                 <HabitCard 
+                    id={item.id}
                     title={item.title}
-                    completed={item.completed}
-                    total={item.total}
+                    description={item.description}
+                    icon={item.icon}
+                    color={item.color}
+                    goalValue={item.goalValue}
+                    goalUnit={item.goalUnit}
+                    completed={item.completed || 0}
                     onPress={() => router.push(`/(main)/habit/${item.id}`)}
                 />
             )}
@@ -39,6 +69,28 @@ export default function HabitCardContainer() {
 
 const styles = StyleSheet.create({
     listContainer: { 
-
+        padding: 16,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    emptyText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    emptySuggestion: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     }
 });

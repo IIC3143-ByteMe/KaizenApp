@@ -4,9 +4,16 @@ import { View, TextInput, StyleSheet } from 'react-native';
 interface HabitTextInputsProps {
     initialTitle?: string;
     initialDescription?: string;
+    onTitleChange?: (title: string) => void;
+    onDescriptionChange?: (description: string) => void;
 }
 
-export default function HabitTextInputs({ initialTitle = '', initialDescription = '' }: HabitTextInputsProps) {
+export default function HabitTextInputs({ 
+    initialTitle = '', 
+    initialDescription = '',
+    onTitleChange,
+    onDescriptionChange
+}: HabitTextInputsProps) {
     return (
     <View style={styles.container}>
         <TextInput
@@ -14,6 +21,7 @@ export default function HabitTextInputs({ initialTitle = '', initialDescription 
             style={styles.name_input}
             placeholderTextColor="#777"
             defaultValue={initialTitle}
+            onChangeText={onTitleChange}
         />
         <TextInput
             placeholder="Descripción"
@@ -21,6 +29,7 @@ export default function HabitTextInputs({ initialTitle = '', initialDescription 
             multiline
             placeholderTextColor="#777"
             defaultValue={initialDescription}
+            onChangeText={onDescriptionChange}
         />
     </View>
     );
