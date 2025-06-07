@@ -1,9 +1,15 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
-export default function HabitFormHeader() {
+interface HabitFormHeaderProps {
+    isTemplate?: boolean;
+}
+
+export default function HabitFormHeader({ isTemplate = false }: HabitFormHeaderProps) {
     return (
-        <Text style={styles.title}>Agregar hábito</Text>
+        <Text style={styles.title}>
+            {isTemplate ? 'Personalizar hábito' : 'Agregar hábito'}
+        </Text>
     );
 }
 

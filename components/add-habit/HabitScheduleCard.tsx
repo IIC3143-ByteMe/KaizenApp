@@ -1,16 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import RepeatDaySelector from '@components/add-habit/RepeatDaySelector';
+import GoalSelector from '@components/add-habit/GoalSelector';
 
-export default function HabitScheduleCard() {
+interface HabitScheduleCardProps {
+    initialGoalValue?: string;
+    initialGoalUnit?: string;
+    onGoalValueChange?: (value: string) => void;
+    onGoalUnitChange?: (unit: string) => void;
+}
+
+export default function HabitScheduleCard({ 
+    initialGoalValue,
+    initialGoalUnit,
+    onGoalValueChange,
+    onGoalUnitChange
+}: HabitScheduleCardProps) {
     return (
-    <View style={styles.card}>
-        <View style={styles.row}>
-            <Text style={styles.label}>Duración</Text>
-            <Text style={styles.value}>30 minutos</Text>
+    <View>
+        <View style={styles.card}>
+            <Text style={[styles.label, { marginBottom: 16 }]}>Repetir</Text>
+            <RepeatDaySelector />
         </View>
-        <Text style={[styles.label, { marginTop: 16 }]}>Repetir</Text>
-        <RepeatDaySelector />
+        
+        <GoalSelector 
+            initialValue={initialGoalValue}
+            initialUnit={initialGoalUnit}
+            onValueChange={onGoalValueChange}
+            onUnitChange={onGoalUnitChange}
+        />
     </View>
     );
 }
