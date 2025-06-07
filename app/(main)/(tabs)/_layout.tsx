@@ -15,6 +15,16 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
+                name="IkigaiScreen"
+                options={{
+                    title: "Ikigai",
+                    headerShown: false,
+                    tabBarIcon: ({ color, size}) => (
+                        <Ionicons name="color-filter-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="AddHabitScreen"
                 options={{
                     title: "Añadir Hábito",
