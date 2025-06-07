@@ -9,22 +9,52 @@ import {
   View,
   TextInput,
   Text,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import PrimaryButton from "@components/utils/PrimaryButton";
 import { useRouter } from "expo-router";
 import AuthHeader from "@components/auth/AuthHeader";
-import { setSessionToken } from '@hooks/useSessionToken';
+import { registerAndLogin } from "@services/authService";
 
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [mail, setMail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    await setSessionToken('fake-token');
-    router.replace("/(main)/(tabs)/HomeScreen");
+    // Validación básica
+    if (!fullName || !email || !password) {
+      Alert.alert("Error", "Por favor, completa todos los campos");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await registerAndLogin({
+        full_name: fullName,
+        email,
+        password,
+      });
+      
+      // Si todo va bien, redirigir al usuario a la pantalla principal
+      router.replace("/(main)/(tabs)/HomeScreen");
+    } catch (error) {
+      Alert.alert(
+        "Error", 
+        "No se pudo completar el registro. Inténtalo de nuevo."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,22 +65,21 @@ export default function SignUpScreen() {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <SafeAreaView style={styles.inner}>
-            <Text>Regístrate</Text>
+            <AuthHeader />
             <View style={styles.form}>
               <TextInput
-                placeholder="Usuario"
+                placeholder="Nombre completo"
                 style={styles.input}
                 placeholderTextColor="#999"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
+                value={fullName}
+                onChangeText={setFullName}
               />
               <TextInput
                 placeholder="Correo electrónico"
                 style={styles.input}
                 placeholderTextColor="#999"
-                value={mail}
-                onChangeText={setMail}
+                value={email}
+                onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
@@ -62,7 +91,13 @@ export default function SignUpScreen() {
                 onChangeText={setPassword}
                 secureTextEntry
               />
-              <PrimaryButton label="Registrarse" onPress={handleSignUp} />
+              
+              {loading ? (
+                <ActivityIndicator size="large" color="#94A9FF" style={styles.loader} />
+              ) : (
+                <PrimaryButton label="Registrarse" onPress={handleSignUp} />
+              )}
+              
               <Text
                 style={styles.link}
                 onPress={() => router.back()}
@@ -107,4 +142,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: "center",
   },
+  loader: {
+    marginTop: 20,
+  }
 });
