@@ -90,6 +90,7 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
             visible={visible}
             animationType="slide"
             presentationStyle="pageSheet"
+            onRequestClose={onClose}
         >
             <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
