@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function IconSoundSelectors() {
+export default function IconColorSelectors() {
     return (
     <View style={styles.row}>
         <TouchableOpacity style={styles.box}>
             <Text style={styles.label}>Ícono</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.box}>
-            <Text style={styles.label}>Sonido</Text>
+            <Text style={styles.label}>Color</Text>
         </TouchableOpacity>
     </View>
     );

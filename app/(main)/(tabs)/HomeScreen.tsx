@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import HomeHeader from '@components/home/HomeHeader';
 import DailyGoalsCard from '@components/home/DailyGoalsCard';
 import WeekdaySelector from '@components/home/WeekdaySelector';
-import HabitTypeCarousel from '@components/home/HabitTypeCarousel';
+import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 import HabitCardList from '@components/home/HabitCardList';
 
 
