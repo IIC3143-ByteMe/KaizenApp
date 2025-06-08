@@ -30,3 +30,16 @@ export const hasDoneQuiz = async (): Promise<boolean> => {
   const flag = await AsyncStorage.getItem(QUIZ_DONE_KEY);
   return flag === "true";
 };
+
+export const clearIkigaiData = async (): Promise<void> => {
+  try {
+    await Promise.all([
+      AsyncStorage.removeItem(IKIGAI_KEY),
+      AsyncStorage.removeItem(QUIZ_DONE_KEY),
+    ]);
+    console.log("Datos de Ikigai eliminados");
+  } catch (error) {
+    console.error("Error al eliminar datos de Ikigai:", error);
+    throw error;
+  }
+};
