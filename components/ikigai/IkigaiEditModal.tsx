@@ -51,25 +51,25 @@ export default function IkigaiEditModal({
           <Text style={styles.title}>Editar tus descripciones</Text>
 
           <TextInput
-            placeholder="Pasión"
+            placeholder="Lo que AMAS"
             style={styles.input}
             value={descriptions.pasion}
             onChangeText={(text) => handleChange('pasion', text)}
           />
           <TextInput
-            placeholder="Misión"
+            placeholder="En lo que eres BUENO"
             style={styles.input}
             value={descriptions.mision}
             onChangeText={(text) => handleChange('mision', text)}
           />
           <TextInput
-            placeholder="Vocación"
+            placeholder="Lo que el mundo NECESITA"
             style={styles.input}
             value={descriptions.vocacion}
             onChangeText={(text) => handleChange('vocacion', text)}
           />
           <TextInput
-            placeholder="Profesión"
+            placeholder="Por lo que te pueden PAGAR"
             style={styles.input}
             value={descriptions.profesion}
             onChangeText={(text) => handleChange('profesion', text)}

@@ -16,6 +16,7 @@ import PrimaryButton from "@components/utils/PrimaryButton";
 import { useRouter } from "expo-router";
 import AuthHeader from "@components/auth/AuthHeader";
 import { registerAndLogin } from "@services/authService";
+import { redirectAfterAuth } from "@components/utils/redirectAfterAuth";
 
 
 export default function SignUpScreen() {
@@ -46,7 +47,7 @@ export default function SignUpScreen() {
       });
       
       // Si todo va bien, redirigir al usuario a la pantalla principal
-      router.replace("/(main)/(tabs)/HomeScreen");
+      router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
     } catch (error) {
       Alert.alert(
         "Error", 

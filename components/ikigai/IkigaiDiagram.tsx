@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,15 +6,19 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  ViewStyle,
 } from "react-native";
 import IkigaiCircle from "@components/ikigai/IkigaiCircle";
+import { getIkigai } from "@services/ikigaiStorage";
 
-const circles = [
-  { id: 1, label: "Lo que amas", description: "Te apasiona", position: "topLeft" },
-  { id: 2, label: "En lo que eres bueno", description: "Tus talentos", position: "topRight" },
-  { id: 3, label: "Lo que el mundo necesita", description: "Impacto social", position: "bottomLeft" },
-  { id: 4, label: "Por lo que te pueden pagar", description: "Valor económico", position: "bottomRight" },
-] as const;
+type Circle = {
+  id: number;
+  label: string;
+  description: string;
+  position: "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+};
+
+type PositionKey = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 
 const habits = [
   { id: '1', title: "Estudiar", ikigai: "pasión" },
@@ -29,9 +33,7 @@ const habits = [
   { id: '10', title: "Hacer ejercicio", ikigai: "pasión" }
 ];
 
-type PositionKey = typeof circles[number]["position"];
-
-const circlePositions: Record<PositionKey, object> = {
+const circlePositions: Record<PositionKey, ViewStyle> = {
   topLeft: { position: 'absolute', top: 150, left: 30 },
   topRight: { position: 'absolute', top: 150, right: 30 },
   bottomLeft: { position: 'absolute', bottom: 150, left: 30 },
@@ -39,8 +41,47 @@ const circlePositions: Record<PositionKey, object> = {
 };
 
 export default function IkigaiDiagram() {
+  const [circles, setCircles] = useState<Circle[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [selectedIkigai, setSelectedIkigai] = useState<null | string>(null);
+
+  useEffect(() => {
+    const fetchIkigai = async () => {
+      const ikigai = await getIkigai();
+      if (!ikigai) return;
+
+      const loadedCircles: Circle[] = [
+        {
+          id: 1,
+          label: "Lo que AMAS",
+          description: ikigai.amas || "¿Qué amas?",
+          position: "topLeft",
+        },
+        {
+          id: 2,
+          label: "En lo que eres BUENO",
+          description: ikigai.bueno || "¿En qué eres bueno/a?",
+          position: "topRight",
+        },
+        {
+          id: 3,
+          label: "Lo que el mundo NECESITA",
+          description: ikigai.necesita || "¿Qué necesita el mundo?",
+          position: "bottomLeft",
+        },
+        {
+          id: 4,
+          label: "Por lo que te pueden PAGAR",
+          description: ikigai.pagar || "¿Por qué te pueden pagar?",
+          position: "bottomRight",
+        },
+      ];
+
+      setCircles(loadedCircles);
+    };
+
+    fetchIkigai();
+  }, []);
 
   const toggle = (id: number) => {
     setActiveId((prev) => (prev === id ? null : id));
