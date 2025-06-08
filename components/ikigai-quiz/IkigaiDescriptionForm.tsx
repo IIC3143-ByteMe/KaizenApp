@@ -30,6 +30,12 @@ interface Props {
 }
 
 export default function IkigaiDescriptionForm({ values, onChange, onSubmit }: Props) {
+
+  const handleSubmit = () => {
+    Keyboard.dismiss();
+    onSubmit();
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -74,7 +80,7 @@ export default function IkigaiDescriptionForm({ values, onChange, onSubmit }: Pr
 
               <PrimaryButton
                 label="Guardar y continuar"
-                onPress={onSubmit}
+                onPress={handleSubmit}
               />
             </ScrollView>
           </View>
