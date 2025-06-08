@@ -6,10 +6,12 @@ import IkigaiEditModal, { Descriptions } from '@components/ikigai/IkigaiEditModa
 
 export default function IkigaiScreen() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleSaveDescriptions = (newValues: Descriptions) => {
+  const handleSaveDescriptions = async (newValues: Descriptions) => {
     console.log('Saved:', newValues);
-    // Aquí guardarías en backend o localStorage
+    setRefreshKey(prev => prev + 1);
+    setModalVisible(false);
   };
 
   return (
@@ -18,7 +20,7 @@ export default function IkigaiScreen() {
         <Ionicons name="create-outline" size={24} color="#555" />
       </TouchableOpacity>
 
-      <IkigaiDiagram />
+      <IkigaiDiagram refreshKey={refreshKey} />
 
       <IkigaiEditModal
         visible={modalVisible}
