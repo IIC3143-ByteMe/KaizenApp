@@ -11,6 +11,10 @@ export default function MainLayout() {
                 name="habit/[id]"
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="ikigai-quiz/IkigaiQuizScreen"
+                options={{ headerShown: false }}
+            />
         </Stack>
     );
 }
