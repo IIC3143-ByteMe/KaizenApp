@@ -41,7 +41,6 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddHabit = async () => {
-        // Validación básica
         if (!title.trim()) {
             Alert.alert('Error', 'Por favor ingresa un nombre para el hábito');
             return;
@@ -60,7 +59,6 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
         try {
             setIsSubmitting(true);
             
-            // Guardar el hábito
             await saveHabit({
                 title,
                 description,
@@ -70,12 +68,10 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 goalUnit
             });
 
-            // Notificar que se ha añadido un hábito
             if (onHabitAdded) {
                 onHabitAdded();
             }
 
-            // Cerrar el modal
             onClose();
         } catch (error) {
             console.error('Error al guardar el hábito:', error);

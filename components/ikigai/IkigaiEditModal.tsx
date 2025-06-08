@@ -52,24 +52,28 @@ export default function IkigaiEditModal({
 
           <TextInput
             placeholder="Lo que AMAS"
+            placeholderTextColor="#777"
             style={styles.input}
             value={descriptions.pasion}
             onChangeText={(text) => handleChange('pasion', text)}
           />
           <TextInput
             placeholder="En lo que eres BUENO"
+            placeholderTextColor="#777"
             style={styles.input}
             value={descriptions.mision}
             onChangeText={(text) => handleChange('mision', text)}
           />
           <TextInput
             placeholder="Lo que el mundo NECESITA"
+            placeholderTextColor="#777"
             style={styles.input}
             value={descriptions.vocacion}
             onChangeText={(text) => handleChange('vocacion', text)}
           />
           <TextInput
             placeholder="Por lo que te pueden PAGAR"
+            placeholderTextColor="#777"
             style={styles.input}
             value={descriptions.profesion}
             onChangeText={(text) => handleChange('profesion', text)}
@@ -114,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
     elevation: 2,
+    color: '#333'
   },
   saveButton: {
     backgroundColor: '#94A9FF',

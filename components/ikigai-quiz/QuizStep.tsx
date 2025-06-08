@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
   },
   optionTextSelected: {
     color: "white",
-    fontWeight: "bold",
   },
   dotsContainer: {
     flexDirection: "row",

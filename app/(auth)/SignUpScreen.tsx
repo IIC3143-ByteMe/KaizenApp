@@ -27,7 +27,7 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    // Validación básica
+    Keyboard.dismiss();
     if (!fullName || !email || !password) {
       Alert.alert("Error", "Por favor, completa todos los campos");
       return;
@@ -46,7 +46,6 @@ export default function SignUpScreen() {
         password,
       });
       
-      // Si todo va bien, redirigir al usuario a la pantalla principal
       router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
     } catch (error) {
       Alert.alert(

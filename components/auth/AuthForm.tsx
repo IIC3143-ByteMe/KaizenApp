@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, TextInput, StyleSheet, Alert, ActivityIndicator, Keyboard } from 'react-native';
 import PrimaryButton from '@components/utils/PrimaryButton';
 import SecondaryButton from '@components/utils/SecondaryButton';
 import { useRouter } from 'expo-router';
@@ -13,6 +13,8 @@ export default function AuthForm() {
     const [loading, setLoading] = useState(false);
     
     const handleLogin = async () => {
+        Keyboard.dismiss();
+
         if (!email || !password) {
             Alert.alert('Error', 'Por favor, completa todos los campos');
             return;
@@ -33,6 +35,7 @@ export default function AuthForm() {
     };
 
     const handleSignUp = () => {
+        Keyboard.dismiss();
         router.push("/(auth)/SignUpScreen");
     };
 
