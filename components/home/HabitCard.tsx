@@ -26,8 +26,10 @@ export default function HabitCard({
     onPress 
 }: Props) {
     const unitData = UNITS.find(unit => unit.id === goalUnit);
-    const progress = Math.min(100, (completed / parseInt(goalValue || '1')) * 100);
-    const isDone = completed >= parseInt(goalValue || '0');
+    
+    const goalValueNum = parseInt(goalValue) || 1;
+    const progress = Math.min(100, Math.max(0, (completed / goalValueNum) * 100));
+    const isDone = completed >= goalValueNum;
 
     return (
         <TouchableOpacity 
@@ -46,7 +48,13 @@ export default function HabitCard({
                 
                 <View style={styles.progressContainer}>
                     <View style={styles.progressBarContainer}>
-                        <View style={[styles.progressBar, { width: `${progress}%`, backgroundColor: color }]} />
+                        <View 
+                            style={[
+                                styles.progressBar, 
+                                { width: `${progress}%`, backgroundColor: color },
+                                isDone && styles.completedProgress
+                            ]} 
+                        />
                     </View>
                     <Text style={styles.progressText}>
                         {completed}/{goalValue} {unitData?.label || goalUnit}
@@ -114,4 +122,7 @@ const styles = StyleSheet.create({
         color: '#666',
         textAlign: 'right',
     },
+    completedProgress: {
+        backgroundColor: '#4CAF50',
+    }
 });

@@ -69,3 +69,31 @@ export const deleteHabit = async (id: string) => {
         throw error;
     }
 };
+
+export const getHabitById = async (id: string): Promise<Habit | null> => {
+  try {
+    const habits = await getHabits();
+    const habit = habits.find(h => h.id === id);
+    return habit || null;
+  } catch (error) {
+    console.error('Error getting habit by id:', error);
+    return null;
+  }
+};
+
+export const updateHabitProgress = async (id: string, newCompleted: number) => {
+  try {
+    const habit = await getHabitById(id);
+    if (!habit) return null;
+    
+    const updatedHabit = {
+      ...habit,
+      completed: newCompleted
+    };
+    
+    return await updateHabit(updatedHabit);
+  } catch (error) {
+    console.error('Error updating habit progress:', error);
+    throw error;
+  }
+};
