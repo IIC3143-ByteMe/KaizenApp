@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FlatList, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import HabitCard from '@components/home/HabitCard';
 import { getHabits, Habit } from '@services/habitStorage';
 
@@ -9,9 +9,13 @@ export default function HabitCardList() {
     const [habits, setHabits] = useState<Habit[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadHabits();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadHabits();
+            
+            return () => {};
+        }, [])
+    );
 
     const loadHabits = async () => {
         try {

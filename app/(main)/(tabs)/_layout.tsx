@@ -27,7 +27,7 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="AddHabitScreen"
                 options={{
-                    title: "Añadir Hábito",
+                    title: "Agregar",
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="add-outline" size={size} color={color} />
@@ -37,7 +37,7 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="ProgressScreen"
                 options={{
-                    title: "Mi Progreso",
+                    title: "Progreso",
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="bar-chart" size={size} color={color} />
@@ -47,7 +47,7 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="AccountScreen"
                 options={{
-                    title: "Mi Cuenta",
+                    title: "Perfil",
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="person-outline" size={size} color={color} />

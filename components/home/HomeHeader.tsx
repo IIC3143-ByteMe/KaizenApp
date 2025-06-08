@@ -1,20 +1,33 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import useStreak from '@hooks/useStreak';
+import { formatDateToSpanish } from '@utils/dateUtils';
 
-export default function HomeHeader(){
-    return (
+export default function HomeHeader() {
+  const { streak, loading } = useStreak();
+  const [currentDate, setCurrentDate] = useState<string>('');
+  
+  useEffect(() => {
+    const today = new Date();
+    setCurrentDate(formatDateToSpanish(today));
+  }, []);
+
+  return (
     <View style={styles.header}>
-        <View>
-            <Text style={styles.greeting}>¡Hola!</Text>
-            <Text style={styles.date}>Viernes 06 de Junio</Text>
-        </View>
-        <View style={styles.streakBadge}>
-            <Text style={styles.streakText}>17🔥</Text>
-        </View>
+      <View>
+        <Text style={styles.greeting}>¡Hola!</Text>
+        <Text style={styles.date}>{currentDate}</Text>
+      </View>
+      <View style={styles.streakBadge}>
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.streakText}>{streak}🔥</Text>
+        )}
+      </View>
     </View>
-    );
+  );
 }
-
 
 const styles = StyleSheet.create({
   header: {
@@ -30,6 +43,9 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     padding: 16,
     elevation: 4,
+    minWidth: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   streakText: {
     fontSize: 18,
