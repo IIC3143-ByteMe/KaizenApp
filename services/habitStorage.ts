@@ -97,3 +97,14 @@ export const updateHabitProgress = async (id: string, newCompleted: number) => {
     throw error;
   }
 };
+
+
+export const clearAllHabits = async (): Promise<void> => {
+    try {
+        await AsyncStorage.removeItem(HABITS_STORAGE_KEY);
+        console.log('Todos los hábitos han sido eliminados');
+    } catch (error) {
+        console.error('Error al eliminar hábitos:', error);
+        throw error;
+    }
+};

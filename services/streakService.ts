@@ -52,8 +52,23 @@ export const resetStreak = async (): Promise<void> => {
     await AsyncStorage.setItem(STREAK_KEY, '0');
   } catch (error) {
     console.error('Error resetting streak:', error);
+    throw error;
   }
 };
+
+
+export const clearStreakData = async (): Promise<void> => {
+  try {
+    await Promise.all([
+      AsyncStorage.removeItem(STREAK_KEY),
+      AsyncStorage.removeItem(LAST_CHECK_KEY)
+    ]);
+    console.log('Datos de streak eliminados');
+  } catch (error) {
+    console.error('Error al eliminar datos de streak:', error);
+    throw error;
+  }
+}
 
 
 export const checkStreakContinuity = async (): Promise<number> => {
