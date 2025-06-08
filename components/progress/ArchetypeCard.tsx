@@ -1,24 +1,42 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { getIkigai } from '@services/ikigaiStorage';
+import { ARQUETIPO_DATA } from '@components/utils/arquetipoData';
 
 export default function ArchetypeCard() {
-    return (
-        <View style={styles.card}>
-            <View style={styles.left}>
-                <Text style={styles.label}>Mi arquetipo</Text>
-                <Text style={styles.title}>Explorador</Text>
-                <Text style={styles.quote}>
-                    “Me cuesta mantener lo mismo mucho tiempo, necesito variedad”
-                </Text>
-            </View>
-            <Image
-                source={require('@assets/icon.png')}
-                style={styles.image}
-                resizeMode="contain"
-            />
-        </View>
-    );
+  const [arquetipo, setArquetipo] = useState<null | keyof typeof ARQUETIPO_DATA>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const stored = await getIkigai();
+      if (stored?.arquetipo) {
+        setArquetipo(stored.arquetipo);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (!arquetipo) return null;
+
+  const { title, phrase } = ARQUETIPO_DATA[arquetipo];
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.left}>
+        <Text style={styles.label}>Mi arquetipo</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.quote}>{phrase}</Text>
+      </View>
+      <Image
+        source={require('@assets/icon.png')}
+        style={styles.image}
+        resizeMode="contain"
+      />
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#7D89FF',

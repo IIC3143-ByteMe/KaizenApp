@@ -51,7 +51,7 @@ export default function IkigaiQuizScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
         {step === 0 && <IkigaiIntroStep onStart={() => setStep(1)} />}
 
         {step > 0 && step <= quizQuestions.length && (
@@ -76,7 +76,7 @@ export default function IkigaiQuizScreen() {
             onSubmit={handleDescriptionSubmit}
           />
         )}
-    </SafeAreaView>
+    </View>
   );
 }
 

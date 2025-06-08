@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 
 interface Option {
   label: string;
@@ -18,6 +24,26 @@ interface Props {
   onAnswer: (value: string) => void;
 }
 
+function ContinueButton({
+  onPress,
+  disabled,
+}: {
+  onPress: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      style={[buttonStyles.button, disabled && buttonStyles.buttonDisabled]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={[buttonStyles.label, disabled && buttonStyles.labelDisabled]}>
+        Continuar
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
 export default function QuizStep({ step, total, data, onAnswer }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -27,47 +53,49 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
 
   const handleSelect = (value: string) => {
     setSelected(value);
-    setTimeout(() => onAnswer(value), 300);
+  };
+
+  const handleContinue = () => {
+    if (selected) {
+      onAnswer(selected);
+    }
   };
 
   return (
-    <View style={styles.wrapper}>
-      {/* Quiz title: fijo en la parte superior */}
+    <SafeAreaView style={styles.wrapper}>
       <View style={styles.header}>
         <Text style={styles.title}>Quiz</Text>
       </View>
 
-      {/* Pregunta + opciones */}
       <View style={styles.content}>
         <Text style={styles.question}>{data.question}</Text>
 
-      <View style={styles.optionsContainer}>
-        {data.options.map((opt, index) => {
-          const isSelected = selected === opt.arquetipo;
-          return (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.optionBox,
-                isSelected && styles.optionSelected,
-              ]}
-              onPress={() => handleSelect(opt.arquetipo)}
-              activeOpacity={0.8}
-            >
-              <Text
+        <View style={styles.optionsContainer}>
+          {data.options.map((opt, index) => {
+            const isSelected = selected === opt.arquetipo;
+            return (
+              <TouchableOpacity
+                key={index}
                 style={[
-                  styles.optionText,
-                  isSelected && styles.optionTextSelected,
+                  styles.optionBox,
+                  isSelected && styles.optionSelected,
                 ]}
+                onPress={() => handleSelect(opt.arquetipo)}
+                activeOpacity={0.8}
               >
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-        {/* Progress dots */}
         <View style={styles.dotsContainer}>
           {Array.from({ length: total }).map((_, index) => (
             <View
@@ -79,10 +107,35 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
             />
           ))}
         </View>
+
+        <ContinueButton onPress={handleContinue} disabled={!selected} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
+
+const buttonStyles = StyleSheet.create({
+  button: {
+    backgroundColor: "#94A9FF",
+    paddingVertical: 14,
+    width: "100%",
+    borderRadius: 25,
+    alignItems: "center",
+    elevation: 3,
+    marginTop: 24,
+  },
+  label: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  labelDisabled: {
+    color: "#888",
+  },
+});
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -92,7 +145,7 @@ const styles = StyleSheet.create({
   header: {
     height: 100,
     justifyContent: "flex-end",
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
   },
   title: {
     fontSize: 30,
@@ -129,13 +182,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     marginBottom: 12,
-  },
-  option: {
-    backgroundColor: "white",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    elevation: 2,
   },
   optionSelected: {
     backgroundColor: "#7D89FF",
