@@ -11,14 +11,16 @@ import {
 import IkigaiCircle from "@components/ikigai/IkigaiCircle";
 import { getIkigai } from "@services/ikigaiStorage";
 
+type Props = {
+  refreshKey?: number;
+};
+
 type Circle = {
   id: number;
   label: string;
   description: string;
   position: "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 };
-
-type PositionKey = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 
 const habits = [
   { id: '1', title: "Estudiar", ikigai: "pasión" },
@@ -33,55 +35,55 @@ const habits = [
   { id: '10', title: "Hacer ejercicio", ikigai: "pasión" }
 ];
 
-const circlePositions: Record<PositionKey, ViewStyle> = {
+const circlePositions: Record<Circle["position"], ViewStyle> = {
   topLeft: { position: 'absolute', top: 150, left: 30 },
   topRight: { position: 'absolute', top: 150, right: 30 },
   bottomLeft: { position: 'absolute', bottom: 150, left: 30 },
   bottomRight: { position: 'absolute', bottom: 150, right: 30 },
 };
 
-export default function IkigaiDiagram() {
+export default function IkigaiDiagram({ refreshKey }: Props) {
   const [circles, setCircles] = useState<Circle[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [selectedIkigai, setSelectedIkigai] = useState<null | string>(null);
 
+  const loadIkigai = async () => {
+    const ikigai = await getIkigai();
+    if (!ikigai) return;
+
+    const loadedCircles: Circle[] = [
+      {
+        id: 1,
+        label: "Lo que AMAS",
+        description: ikigai.amas || "¿Qué amas?",
+        position: "topLeft",
+      },
+      {
+        id: 2,
+        label: "En lo que eres BUENO",
+        description: ikigai.bueno || "¿En qué eres bueno/a?",
+        position: "topRight",
+      },
+      {
+        id: 3,
+        label: "Lo que el mundo NECESITA",
+        description: ikigai.necesita || "¿Qué necesita el mundo?",
+        position: "bottomLeft",
+      },
+      {
+        id: 4,
+        label: "Por lo que te pueden PAGAR",
+        description: ikigai.pagar || "¿Por qué te pueden pagar?",
+        position: "bottomRight",
+      },
+    ];
+
+    setCircles(loadedCircles);
+  };
+
   useEffect(() => {
-    const fetchIkigai = async () => {
-      const ikigai = await getIkigai();
-      if (!ikigai) return;
-
-      const loadedCircles: Circle[] = [
-        {
-          id: 1,
-          label: "Lo que AMAS",
-          description: ikigai.amas || "¿Qué amas?",
-          position: "topLeft",
-        },
-        {
-          id: 2,
-          label: "En lo que eres BUENO",
-          description: ikigai.bueno || "¿En qué eres bueno/a?",
-          position: "topRight",
-        },
-        {
-          id: 3,
-          label: "Lo que el mundo NECESITA",
-          description: ikigai.necesita || "¿Qué necesita el mundo?",
-          position: "bottomLeft",
-        },
-        {
-          id: 4,
-          label: "Por lo que te pueden PAGAR",
-          description: ikigai.pagar || "¿Por qué te pueden pagar?",
-          position: "bottomRight",
-        },
-      ];
-
-      setCircles(loadedCircles);
-    };
-
-    fetchIkigai();
-  }, []);
+    loadIkigai();
+  }, [refreshKey]);
 
   const toggle = (id: number) => {
     setActiveId((prev) => (prev === id ? null : id));
@@ -102,26 +104,23 @@ export default function IkigaiDiagram() {
         </View>
       ))}
 
-      {/* Etiquetas intermedias */}
+      {/* Etiquetas */}
       <TouchableOpacity style={[styles.box, styles.labelPasion]} onPress={() => setSelectedIkigai("pasión")}>
         <Text style={styles.boxLabel}>Pasión</Text>
       </TouchableOpacity>
-
       <TouchableOpacity style={[styles.box, styles.labelMision]} onPress={() => setSelectedIkigai("mision")}>
         <Text style={styles.boxLabel}>Misión</Text>
       </TouchableOpacity>
-
       <TouchableOpacity style={[styles.box, styles.labelVocacion]} onPress={() => setSelectedIkigai("vocacion")}>
         <Text style={styles.boxLabel}>Vocación</Text>
       </TouchableOpacity>
-
       <TouchableOpacity style={[styles.box, styles.labelProfesion]} onPress={() => setSelectedIkigai("profesion")}>
         <Text style={styles.boxLabel}>Profesión</Text>
       </TouchableOpacity>
 
       <Text style={styles.labelIkigai}>IKIGAI</Text>
 
-      {/* Modal de hábitos */}
+      {/* Modal hábitos */}
       <Modal
         visible={selectedIkigai !== null}
         animationType="none"
