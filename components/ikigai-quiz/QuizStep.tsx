@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import PrimaryButton from "@components/utils/PrimaryButton";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 
 interface Option {
   label: string;
@@ -19,7 +24,13 @@ interface Props {
   onAnswer: (value: string) => void;
 }
 
-function ContinueButton({ onPress, disabled }: { onPress: () => void; disabled: boolean }) {
+function ContinueButton({
+  onPress,
+  disabled,
+}: {
+  onPress: () => void;
+  disabled: boolean;
+}) {
   return (
     <TouchableOpacity
       style={[buttonStyles.button, disabled && buttonStyles.buttonDisabled]}
@@ -51,8 +62,7 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
   };
 
   return (
-    <View style={styles.wrapper}>
-      {/* Quiz title */}
+    <SafeAreaView style={styles.wrapper}>
       <View style={styles.header}>
         <Text style={styles.title}>Quiz</Text>
       </View>
@@ -86,7 +96,6 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
           })}
         </View>
 
-        {/* Dots de progreso */}
         <View style={styles.dotsContainer}>
           {Array.from({ length: total }).map((_, index) => (
             <View
@@ -99,14 +108,9 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
           ))}
         </View>
 
-        {/* Botón continuar */}
-        <ContinueButton
-          onPress={() => selected && onAnswer(selected)}
-          disabled={!selected}
-        />
-
+        <ContinueButton onPress={handleContinue} disabled={!selected} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
   header: {
     height: 100,
     justifyContent: "flex-end",
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
   },
   title: {
     fontSize: 30,
@@ -179,13 +183,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 12,
   },
-  option: {
-    backgroundColor: "white",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    elevation: 2,
-  },
   optionSelected: {
     backgroundColor: "#7D89FF",
   },
@@ -196,6 +193,7 @@ const styles = StyleSheet.create({
   },
   optionTextSelected: {
     color: "white",
+    fontWeight: "bold",
   },
   dotsContainer: {
     flexDirection: "row",

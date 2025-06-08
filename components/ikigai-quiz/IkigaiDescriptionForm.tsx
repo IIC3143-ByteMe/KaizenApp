@@ -9,6 +9,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  SafeAreaView,
 } from "react-native";
 import PrimaryButton from "@components/utils/PrimaryButton";
 
@@ -30,58 +31,64 @@ interface Props {
 
 export default function IkigaiDescriptionForm({ values, onChange, onSubmit }: Props) {
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.wrapper}>
-          <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Completa tu Ikigai</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.wrapper}>
+            <ScrollView contentContainerStyle={styles.container}>
+              <Text style={styles.title}>Completa tu Ikigai</Text>
 
-            <View style={styles.inputsContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="¿Qué amas?"
-                value={values.amas}
-                onChangeText={(text) => onChange({ ...values, amas: text })}
-                multiline
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="¿En qué eres bueno/a?"
-                value={values.bueno}
-                onChangeText={(text) => onChange({ ...values, bueno: text })}
-                multiline
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="¿Qué necesita el mundo?"
-                value={values.necesita}
-                onChangeText={(text) => onChange({ ...values, necesita: text })}
-                multiline
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="¿Por qué te pueden pagar?"
-                value={values.pagar}
-                onChangeText={(text) => onChange({ ...values, pagar: text })}
-                multiline
-              />
-            </View>
+              <View style={styles.inputsContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="¿Qué amas?"
+                  value={values.amas}
+                  onChangeText={(text) => onChange({ ...values, amas: text })}
+                  multiline
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="¿En qué eres bueno/a?"
+                  value={values.bueno}
+                  onChangeText={(text) => onChange({ ...values, bueno: text })}
+                  multiline
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="¿Qué necesita el mundo?"
+                  value={values.necesita}
+                  onChangeText={(text) => onChange({ ...values, necesita: text })}
+                  multiline
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="¿Por qué te pueden pagar?"
+                  value={values.pagar}
+                  onChangeText={(text) => onChange({ ...values, pagar: text })}
+                  multiline
+                />
+              </View>
 
-            <PrimaryButton
-              label="Guardar y continuar"
-              onPress={onSubmit}
-            />
-          </ScrollView>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+              <PrimaryButton
+                label="Guardar y continuar"
+                onPress={onSubmit}
+              />
+            </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F6F6F6",
+  },
   wrapper: {
     flex: 1,
     backgroundColor: "#F6F6F6",
