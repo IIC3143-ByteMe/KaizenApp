@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getIkigai, saveIkigai } from '@services/ikigaiStorage';
 
@@ -30,6 +30,7 @@ export default function IkigaiEditModal({
   };
 
   const handleSave = async () => {
+    Keyboard.dismiss();
     try {
       const existing = await getIkigai();
 
