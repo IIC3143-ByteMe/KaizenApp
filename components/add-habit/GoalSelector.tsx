@@ -13,19 +13,19 @@ export const UNITS = [
 ];
 
 interface GoalSelectorProps {
-    initialValue?: string;
+    initialValue?: number;
     initialUnit?: string;
-    onValueChange?: (value: string) => void;
+    onValueChange?: (value: number) => void;
     onUnitChange?: (unit: string) => void;
 }
 
 export default function GoalSelector({
-    initialValue = '',
+    initialValue = 0,
     initialUnit = '',
     onValueChange,
     onUnitChange
 }: GoalSelectorProps) {
-    const [goalValue, setGoalValue] = useState(initialValue);
+    const [goalValue, setGoalValue] = useState(initialValue?.toString() || '');
     const [selectedUnit, setSelectedUnit] = useState(initialUnit);
     const [unitsModalVisible, setUnitsModalVisible] = useState(false);
     
@@ -34,7 +34,10 @@ export default function GoalSelector({
     const handleValueChange = (value: string) => {
         if (/^\d*$/.test(value)) {
             setGoalValue(value);
-            if (onValueChange) onValueChange(value);
+            if (onValueChange) {
+                const numValue = value === '' ? 0 : parseInt(value, 10);
+                onValueChange(numValue);
+            }
         }
     };
 

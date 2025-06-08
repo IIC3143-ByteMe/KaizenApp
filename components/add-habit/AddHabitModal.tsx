@@ -6,13 +6,18 @@ import {
     StyleSheet, 
     TouchableOpacity, 
     SafeAreaView,
-    Alert
+    Alert,
+    Text
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HabitFormHeader from './HabitFormHeader';
 import HabitTextInputs from './HabitTextInputs';
 import IconColorSelectors from './IconColorSelectors';
-import HabitScheduleCard from './HabitScheduleCard';
+import GoalSelector from './GoalSelector';
+import TypeSelector from './TypeSelector';
+import WeekdayPicker from './WeekdayPicker';
+import ReminderPicker from './ReminderPicker';
+import HabitTypeSelector from './HabitTypeSelector';
 import AddButton from './AddButton';
 import { saveHabit } from '@services/habitStorage';
 
@@ -36,37 +41,50 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [description, setDescription] = useState(selectedTemplate?.description || '');
     const [icon, setIcon] = useState(selectedTemplate?.icon || '');
     const [color, setColor] = useState(selectedTemplate?.color || '#A4B1FF');
-    const [goalValue, setGoalValue] = useState('');
+    const [goalValue, setGoalValue] = useState<number>(0);
     const [goalUnit, setGoalUnit] = useState('');
+    const [group, setGroup] = useState('Healthy');
+    const [habitType, setHabitType] = useState('Build');
+    const [taskDays, setTaskDays] = useState('Mon,Tue,Wed,Thu,Fri');
+    const [reminders, setReminders] = useState('08:00');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddHabit = async () => {
-        if (!title.trim()) {
-            Alert.alert('Error', 'Por favor ingresa un nombre para el hábito');
-            return;
-        }
-
-        if (!icon) {
-            Alert.alert('Error', 'Por favor selecciona un ícono');
-            return;
-        }
-
-        if (!goalValue || !goalUnit) {
-            Alert.alert('Error', 'Por favor establece una meta para tu hábito');
-            return;
-        }
-
         try {
+            if (!title.trim()) {
+                Alert.alert('Error', 'Por favor ingresa un nombre para el hábito');
+                return;
+            }
+
+            if (!icon) {
+                Alert.alert('Error', 'Por favor selecciona un ícono');
+                return;
+            }
+
+            if (!goalValue || !goalUnit) {
+                Alert.alert('Error', 'Por favor establece una meta para tu hábito');
+                return;
+            }
+
             setIsSubmitting(true);
             
-            await saveHabit({
+            const habitData = {
                 title,
                 description,
                 icon,
                 color,
                 goalValue,
-                goalUnit
-            });
+                goalUnit,
+                group,
+                habitType,
+                goalPeriod: 'daily',
+                taskDays,
+                reminders,
+                ikigaiCategory: null
+            };
+            
+            await saveHabit(habitData);
+            console.log('✅ Hábito guardado exitosamente');
 
             if (onHabitAdded) {
                 onHabitAdded();
@@ -74,8 +92,12 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
 
             onClose();
         } catch (error) {
-            console.error('Error al guardar el hábito:', error);
-            Alert.alert('Error', 'No se pudo guardar el hábito. Inténtalo de nuevo.');
+            console.error('❌ ERROR en handleAddHabit:', error);
+            let errorMessage = 'No se pudo guardar el hábito. Inténtalo de nuevo.';
+            if (error instanceof Error) {
+                errorMessage += ` (${error.message})`;
+            }
+            Alert.alert('Error', errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -96,6 +118,12 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollContent}>
                     <HabitFormHeader isTemplate={!!selectedTemplate} />
+                    
+                    <HabitTypeSelector 
+                        selectedType={habitType}
+                        onTypeChange={setHabitType}
+                    />
+                    
                     <HabitTextInputs 
                         initialTitle={selectedTemplate?.title}
                         initialDescription={selectedTemplate?.description}
@@ -108,10 +136,30 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                         onIconChange={setIcon}
                         onColorChange={setColor}
                     />
-                    <HabitScheduleCard 
-                        onGoalValueChange={setGoalValue}
-                        onGoalUnitChange={setGoalUnit}
+                    
+                    {/* Cambiado nombre de prop de type a group */}
+                    <TypeSelector 
+                        selectedType={group}
+                        onTypeChange={setGroup}
                     />
+                    
+                    <GoalSelector 
+                        initialValue={goalValue}
+                        initialUnit={goalUnit}
+                        onValueChange={setGoalValue}
+                        onUnitChange={setGoalUnit}
+                    />
+                    
+                    <WeekdayPicker 
+                        selectedDays={taskDays}
+                        onDaysChange={setTaskDays}
+                    />
+                    
+                    <ReminderPicker 
+                        reminders={reminders}
+                        onRemindersChange={setReminders}
+                    />
+                    
                     <AddButton 
                         onPress={handleAddHabit}
                         disabled={isSubmitting}
