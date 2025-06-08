@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getIkigai, saveIkigai } from '@services/ikigaiStorage';
@@ -53,6 +53,12 @@ export default function IkigaiEditModal({
       console.error("Error al guardar descripciones:", error);
     }
   };
+
+  useEffect(() => {
+    if (!visible) {
+      setDescriptions({ amas: '', bueno: '', necesita: '', pagar: '' });
+    }
+  }, [visible]);
 
   return (
     <Modal
