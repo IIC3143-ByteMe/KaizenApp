@@ -6,33 +6,38 @@ import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage
 
 interface HabitCardListProps {
   selectedDate?: string;
+  selectedFilter?: string;
   onHabitsUpdate?: () => void;
 }
 
-export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCardListProps) {
+export default function HabitCardList({ 
+    selectedDate, 
+    selectedFilter = 'all',
+    onHabitsUpdate 
+}: HabitCardListProps) {
     const router = useRouter();
     const [habits, setHabits] = useState<Habit[]>([]);
+    const [filteredHabits, setFilteredHabits] = useState<Habit[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
+    // Cargar y filtrar hábitos cuando cambia la fecha o el filtro
     useFocusEffect(
         useCallback(() => {
             loadHabits();
-            
             return () => {};
-        }, [selectedDate])
+        }, [selectedDate, selectedFilter])
     );
+
+    // Aplicar filtros a los hábitos cargados
+    useEffect(() => {
+        filterHabits();
+    }, [habits, selectedFilter]);
 
     const loadHabits = async () => {
         try {
             setLoading(true);
             const savedHabits = await getHabits();
-            
-            // filtrar por fecha si es necesario
-            // const filteredHabits = selectedDate 
-            //    ? savedHabits.filter(habit => /* lógica para filtrar por fecha */)
-            //    : savedHabits;
-            
             setHabits(savedHabits);
             
             if (onHabitsUpdate) {
@@ -43,6 +48,18 @@ export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCar
         } finally {
             setLoading(false);
         }
+    };
+
+    const filterHabits = () => {
+        if (selectedFilter === 'all') {
+            setFilteredHabits(habits);
+            return;
+        }
+        
+        const filtered = habits.filter(habit => habit.group === selectedFilter);
+        setFilteredHabits(filtered);
+        
+        console.log(`Filtrado por: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
     };
 
     const onRefresh = async () => {
@@ -73,7 +90,8 @@ export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCar
         );
     }
 
-    if (habits.length === 0) {
+    // Si no hay hábitos después de aplicar el filtro
+    if (filteredHabits.length === 0) {
         return (
             <ScrollView 
                 contentContainerStyle={styles.emptyScrollContainer}
@@ -87,10 +105,23 @@ export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCar
                 }
             >
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>No tienes hábitos guardados</Text>
-                    <Text style={styles.emptySuggestion}>
-                        Agrega uno nuevo desde la pestaña "Agregar"
-                    </Text>
+                    {habits.length === 0 ? (
+                        <>
+                            <Text style={styles.emptyText}>No tienes hábitos guardados</Text>
+                            <Text style={styles.emptySuggestion}>
+                                Agrega uno nuevo desde la pestaña "Agregar"
+                            </Text>
+                        </>
+                    ) : (
+                        <>
+                            <Text style={styles.emptyText}>
+                                No hay hábitos en la categoría "{selectedFilter}"
+                            </Text>
+                            <Text style={styles.emptySuggestion}>
+                                Selecciona otra categoría o agrega un nuevo hábito
+                            </Text>
+                        </>
+                    )}
                     <Text style={styles.pullToRefreshHint}>
                         Desliza hacia abajo para buscar hábitos en la nube
                     </Text>
@@ -101,7 +132,7 @@ export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCar
 
     return (
         <FlatList
-            data={habits}
+            data={filteredHabits}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
                 <HabitCard 

@@ -13,6 +13,7 @@ export default function HomeScreen() {
     const [selectedDate, setSelectedDate] = useState<string>(
         new Date().toISOString().split('T')[0]
     );
+    const [selectedFilter, setSelectedFilter] = useState<string>('all');
     const [goalsData, setGoalsData] = useState({
         totalHabits: 0,
         completedHabits: 0
@@ -51,6 +52,11 @@ export default function HomeScreen() {
         setSelectedDate(date);
         calculateDailyGoals(date);
     };
+    
+    const handleFilterChange = (filter: string) => {
+        console.log('Filtro seleccionado:', filter);
+        setSelectedFilter(filter);
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -62,10 +68,14 @@ export default function HomeScreen() {
                         totalHabits={goalsData.totalHabits}
                         completedHabits={goalsData.completedHabits}
                     />
-                    <HabitTypeCarousel />
+                    <HabitTypeCarousel 
+                        selectedFilter={selectedFilter}
+                        onFilterChange={handleFilterChange}
+                    />
                 </View>
                 <HabitCardList 
                     selectedDate={selectedDate}
+                    selectedFilter={selectedFilter}
                     onHabitsUpdate={calculateDailyGoals}
                 />
             </View>
