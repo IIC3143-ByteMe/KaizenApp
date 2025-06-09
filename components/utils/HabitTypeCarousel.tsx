@@ -2,26 +2,41 @@ import React from 'react';
 import { ScrollView, Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
-const filters = [
-    { id: 'all', name: 'Todos', icon: 'layer-group' },
-    { id: 'Healthy', name: 'Healthy', icon: 'apple-alt' },
-    { id: 'Fitness', name: 'Fitness', icon: 'dumbbell' },
-    { id: 'Mental Health', name: 'Mental Health', icon: 'brain' },
-    { id: 'Productivity', name: 'Productivity', icon: 'lightbulb' },
-    { id: 'Sleep', name: 'Sleep', icon: 'bed' },
-    { id: 'Social', name: 'Social', icon: 'users' },
-    { id: 'Finance', name: 'Finance', icon: 'piggy-bank' },
-    { id: 'Hobbies', name: 'Hobbies', icon: 'paint-brush' },
-    { id: 'Reading', name: 'Reading', icon: 'book' },
-    { id: 'Travel', name: 'Travel', icon: 'plane' },
-];
+const categoryIcons: {[key: string]: string} = {
+    'all': 'layer-group',
+    'Healthy': 'apple-alt',
+    'Fitness': 'dumbbell',
+    'Mental Health': 'brain',
+    'Productivity': 'lightbulb',
+    'Sleep': 'bed',
+    'Social': 'users',
+    'Finance': 'piggy-bank',
+    'Hobbies': 'paint-brush',
+    'Reading': 'book',
+    'Travel': 'plane',
+    'default': 'tag'
+};
 
 interface HabitTypeCarouselProps {
     selectedFilter: string;
     onFilterChange: (filter: string) => void;
+    availableCategories: string[];
 }
 
-export default function HabitTypeCarousel({ selectedFilter = 'all', onFilterChange }: HabitTypeCarouselProps) {
+export default function HabitTypeCarousel({ 
+    selectedFilter = 'all', 
+    onFilterChange,
+    availableCategories = []
+}: HabitTypeCarouselProps) {
+    const filters = [
+        { id: 'all', name: 'Todos', icon: categoryIcons['all'] },
+        ...availableCategories.map(category => ({
+            id: category,
+            name: category,
+            icon: categoryIcons[category] || categoryIcons['default']
+        }))
+    ];
+
     return (
         <View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>

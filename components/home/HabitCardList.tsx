@@ -21,7 +21,6 @@ export default function HabitCardList({
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Cargar y filtrar hábitos cuando cambia la fecha o el filtro
     useFocusEffect(
         useCallback(() => {
             loadHabits();
@@ -29,7 +28,6 @@ export default function HabitCardList({
         }, [selectedDate, selectedFilter])
     );
 
-    // Aplicar filtros a los hábitos cargados
     useEffect(() => {
         filterHabits();
     }, [habits, selectedFilter]);
