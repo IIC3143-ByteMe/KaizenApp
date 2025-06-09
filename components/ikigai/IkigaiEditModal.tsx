@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getIkigai, saveIkigai } from '@services/ikigaiStorage';
+import { getIkigai, updateIkigai } from '@services/ikigaiStorage';
 
 interface IkigaiEditModalProps {
   visible: boolean;
@@ -47,7 +47,7 @@ export default function IkigaiEditModal({
         pagar: descriptions.pagar || existing.pagar,
       };
 
-      await saveIkigai(updated);
+      await updateIkigai(updated);
       onSave?.(descriptions);
       onClose();
     } catch (error) {

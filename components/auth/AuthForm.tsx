@@ -5,6 +5,7 @@ import SecondaryButton from '@components/utils/SecondaryButton';
 import { useRouter } from 'expo-router';
 import { login } from '@services/authService';
 import { fetchHabitsFromBackend } from '@services/habitStorage';
+import { fetchIkigaiFromBackend } from '@services/ikigaiStorage';
 
 export default function AuthForm() {
     const router = useRouter();
@@ -27,7 +28,14 @@ export default function AuthForm() {
             console.log('🔄 Cargando hábitos después del login...');
             await fetchHabitsFromBackend();
             
+            console.log('🔄 Cargando ikigai después del login...');
+            const ikigai = await fetchIkigaiFromBackend();
+
+            if (ikigai) {
             router.replace("/(main)/(tabs)/HomeScreen");
+            } else {
+            router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
+            }
         } catch (error) {
             Alert.alert(
                 'Error', 
