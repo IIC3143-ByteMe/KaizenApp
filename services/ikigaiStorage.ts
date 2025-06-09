@@ -42,14 +42,12 @@ export const updateIkigai = async (ikigai: Partial<IkigaiData>) => {
 export const fetchIkigaiFromBackend = async (): Promise<IkigaiData | null> => {
   try {
     const response = await api.get('/ikigai/');
-    const ikigaiArray = response.data;
+    const ikigai = response.data;
 
-    if (!Array.isArray(ikigaiArray) || ikigaiArray.length === 0) {
+    if (!ikigai) {
       console.warn('⚠️ No se encontró Ikigai en el backend');
       return null;
     }
-
-    const ikigai = ikigaiArray[0];
 
     await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(ikigai));
     return ikigai;

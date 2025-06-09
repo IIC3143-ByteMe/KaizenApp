@@ -3,7 +3,7 @@ import { removeSessionToken } from '@hooks/useSessionToken';
 import { clearStreakData } from './streakService';
 import { clearAllHabits } from './habitStorage';
 import { clearIkigaiData } from './ikigaiStorage';
-
+import { clearUser } from './userStorage';
 
 export const clearAllUserData = async (): Promise<void> => {
   try {
@@ -12,7 +12,8 @@ export const clearAllUserData = async (): Promise<void> => {
     await Promise.all([
       clearStreakData(),
       clearAllHabits(),
-      clearIkigaiData()
+      clearIkigaiData(),
+      clearUser()
     ]);
 
     console.log('Todos los datos del usuario han sido eliminados');

@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { login } from '@services/authService';
 import { fetchHabitsFromBackend } from '@services/habitStorage';
 import { fetchIkigaiFromBackend } from '@services/ikigaiStorage';
+import { fetchUserFromBackend } from '@services/userStorage';
 
 export default function AuthForm() {
     const router = useRouter();
@@ -30,6 +31,9 @@ export default function AuthForm() {
             
             console.log('🔄 Cargando ikigai después del login...');
             const ikigai = await fetchIkigaiFromBackend();
+
+            console.log('🔄 Cargando user info después del login...');
+            await fetchUserFromBackend();
 
             if (ikigai) {
             router.replace("/(main)/(tabs)/HomeScreen");
