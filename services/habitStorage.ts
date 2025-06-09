@@ -131,11 +131,24 @@ export const updateHabit = async (updatedHabit: Habit) => {
 export const deleteHabit = async (id: string) => {
     try {
         const habits = await getHabits();
-        const updatedHabits = habits.filter(habit => habit.id !== id);
+        const habit = habits.find(h => h.id === id);
+        
+        if (habit?.syncedWithBackend) {
+            try {
+                await api.delete(`/habits/${id}`);
+                console.log('✅ Hábito eliminado exitosamente del backend');
+            } catch (backendError) {
+                console.error('❌ Error al eliminar hábito del backend:', backendError);
+            }
+        }
       
+        const updatedHabits = habits.filter(habit => habit.id !== id);
         await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
+        console.log('✅ Hábito eliminado exitosamente del almacenamiento local');
+        
+        return true;
     } catch (error) {
-        console.error('Error deleting habit:', error);
+        console.error('❌ Error general al eliminar hábito:', error);
         throw error;
     }
 };
