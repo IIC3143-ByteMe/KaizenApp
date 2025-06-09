@@ -27,9 +27,15 @@ export default function AuthForm() {
             
             console.log('🔄 Cargando hábitos después del login...');
             await fetchHabitsFromBackend();
-            await fetchIkigaiFromBackend();
             
+            console.log('🔄 Cargando ikigai después del login...');
+            const ikigai = await fetchIkigaiFromBackend();
+
+            if (ikigai) {
             router.replace("/(main)/(tabs)/HomeScreen");
+            } else {
+            router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
+            }
         } catch (error) {
             Alert.alert(
                 'Error', 
