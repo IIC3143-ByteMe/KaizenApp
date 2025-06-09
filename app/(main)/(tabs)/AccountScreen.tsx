@@ -1,43 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
 import Settings from '@components/account/Settings';
 import { Ionicons } from '@expo/vector-icons';
+import { getUser, UserData } from '@services/userStorage';
 
 export default function AccountScreen() {
-    const user = {
-        name: "Juanito Pérez",
-        phone: "+56 9 1234 5678",
-        location: "San Joaquín",
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const data = await getUser();
+      setUser(data);
     };
+    loadUser();
+  }, []);
 
-    return (
-        <SafeAreaView style={styles.safeArea}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                <TouchableOpacity style={styles.configButton}>
-                    <Ionicons name="settings-outline" size={28} color="#555" />
-                </TouchableOpacity>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity style={styles.configButton}>
+          <Ionicons name="settings-outline" size={28} color="#555" />
+        </TouchableOpacity>
 
-                <View style={styles.avatarContainer}>
-                    <Ionicons name="person-circle-outline" size={110} color="#B0B0B0" />
-                </View>
+        <View style={styles.avatarContainer}>
+          <Ionicons name="person-circle-outline" size={110} color="#B0B0B0" />
+        </View>
 
-                <Text style={styles.name}>{user.name}</Text>
-                <Text style={styles.info}>{user.phone} | {user.location}</Text>
+        <Text style={styles.name}>{user?.full_name || 'Tu nombre'}</Text>
+        <Text style={styles.info}>{user?.email || 'correo@ejemplo.com'}</Text>
 
-                <TouchableOpacity style={styles.actionButton}>
-                    <Text style={styles.actionText}>Administrar notificaciones</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                    <Text style={styles.actionText}>Editar datos</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                    <Text style={styles.actionText}>Alguna otra acción increíble</Text>
-                </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>Administrar notificaciones</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>Editar datos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionText}>Alguna otra acción increíble</Text>
+        </TouchableOpacity>
 
-                <Settings />
-            </ScrollView>
-        </SafeAreaView>
-    );
+        <Settings />
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({

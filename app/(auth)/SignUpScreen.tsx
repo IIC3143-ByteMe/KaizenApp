@@ -16,8 +16,7 @@ import PrimaryButton from "@components/utils/PrimaryButton";
 import { useRouter } from "expo-router";
 import AuthHeader from "@components/auth/AuthHeader";
 import { registerAndLogin } from "@services/authService";
-import { redirectAfterAuth } from "@components/utils/redirectAfterAuth";
-
+import { fetchUserFromBackend } from '@services/userStorage';
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -45,6 +44,8 @@ export default function SignUpScreen() {
         email,
         password,
       });
+
+      await fetchUserFromBackend();
       
       router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
     } catch (error) {
