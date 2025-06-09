@@ -1,33 +1,74 @@
 import React from 'react';
-import { ScrollView, Text, StyleSheet, View } from 'react-native';
+import { ScrollView, Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
-const filters = [
-    { name: 'Healthy', icon: 'apple-alt' },
-    { name: 'Fitness', icon: 'dumbbell' },
-    { name: 'Mental Health', icon: 'brain' },
-    { name: 'Productivity', icon: 'lightbulb' },
-    { name: 'Sleep', icon: 'bed' },
-    { name: 'Social', icon: 'users' },
-    { name: 'Finance', icon: 'piggy-bank' },
-    { name: 'Hobbies', icon: 'paint-brush' },
-    { name: 'Reading', icon: 'book' },
-    { name: 'Travel', icon: 'plane' },
-];
+const categoryIcons: {[key: string]: string} = {
+    'all': 'layer-group',
+    'Healthy': 'apple-alt',
+    'Fitness': 'dumbbell',
+    'Mental Health': 'brain',
+    'Productivity': 'lightbulb',
+    'Sleep': 'bed',
+    'Social': 'users',
+    'Finance': 'piggy-bank',
+    'Hobbies': 'paint-brush',
+    'Reading': 'book',
+    'Travel': 'plane',
+    'default': 'tag'
+};
 
-export default function HabitTypeCarousel() {
+interface HabitTypeCarouselProps {
+    selectedFilter: string;
+    onFilterChange: (filter: string) => void;
+    availableCategories: string[];
+}
+
+export default function HabitTypeCarousel({ 
+    selectedFilter = 'all', 
+    onFilterChange,
+    availableCategories = []
+}: HabitTypeCarouselProps) {
+    const filters = [
+        { id: 'all', name: 'Todos', icon: categoryIcons['all'] },
+        ...availableCategories.map(category => ({
+            id: category,
+            name: category,
+            icon: categoryIcons[category] || categoryIcons['default']
+        }))
+    ];
+
     return (
         <View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
-                {filters.map((item, idx) => (
-                    <View key={idx} style={styles.item}>
-                        <FontAwesome5 name={item.icon as any} size={18} color="#333" />
-                        <Text style={styles.label}>{item.name}</Text>
-                    </View>
-                ))}
+                {filters.map((item) => {
+                    const isSelected = selectedFilter === item.id;
+                    
+                    return (
+                        <TouchableOpacity 
+                            key={item.id}
+                            style={[
+                                styles.item,
+                                isSelected && styles.selectedItem
+                            ]}
+                            onPress={() => onFilterChange(item.id)}
+                            activeOpacity={0.7}
+                        >
+                            <FontAwesome5 
+                                name={item.icon as any} 
+                                size={18} 
+                                color={isSelected ? '#FFF' : '#333'} 
+                            />
+                            <Text style={[
+                                styles.label,
+                                isSelected && styles.selectedLabel
+                            ]}>
+                                {item.name}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
             </ScrollView>
         </View>
-        
     );
 }
 
@@ -49,9 +90,16 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 1 },
         shadowRadius: 1,
     },
+    selectedItem: {
+        backgroundColor: '#94A9FF',
+    },
     label: {
         marginTop: 5,
         fontSize: 13,
         color: '#444',
+    },
+    selectedLabel: {
+        color: '#FFF',
+        fontWeight: '600',
     },
 });

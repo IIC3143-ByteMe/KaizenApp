@@ -6,21 +6,28 @@ import DailyGoalsCard from '@components/home/DailyGoalsCard';
 import WeekdaySelector from '@components/home/WeekdaySelector';
 import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 import HabitCardList from '@components/home/HabitCardList';
-import { getHabits } from '@services/habitStorage';
+import { getHabits, Habit } from '@services/habitStorage';
 
 
 export default function HomeScreen() {
     const [selectedDate, setSelectedDate] = useState<string>(
         new Date().toISOString().split('T')[0]
     );
+    const [selectedFilter, setSelectedFilter] = useState<string>('all');
     const [goalsData, setGoalsData] = useState({
         totalHabits: 0,
         completedHabits: 0
     });
+    const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+    const [allHabits, setAllHabits] = useState<Habit[]>([]);
 
-    const calculateDailyGoals = async (date: string = selectedDate) => {
+    const loadHabitsAndCalculateGoals = async (date: string = selectedDate) => {
         try {
             const habits = await getHabits();
+            setAllHabits(habits);
+            
+            const uniqueCategories = [...new Set(habits.map(habit => habit.group))].filter(Boolean);
+            setAvailableCategories(uniqueCategories);
             
             if (!habits.length) {
                 setGoalsData({ totalHabits: 0, completedHabits: 0 });
@@ -36,20 +43,29 @@ export default function HomeScreen() {
                 completedHabits: completed
             });
         } catch (error) {
-            console.error('Error calculating daily goals:', error);
+            console.error('Error loading habits and calculating goals:', error);
         }
     };
 
     useFocusEffect(
         useCallback(() => {
-            calculateDailyGoals();
+            loadHabitsAndCalculateGoals();
             return () => {};
         }, [])
     );
 
     const handleDateChange = (date: string) => {
         setSelectedDate(date);
-        calculateDailyGoals(date);
+        loadHabitsAndCalculateGoals(date);
+    };
+    
+    const handleFilterChange = (filter: string) => {
+        console.log('Filtro seleccionado:', filter);
+        setSelectedFilter(filter);
+    };
+
+    const handleHabitsUpdate = () => {
+        loadHabitsAndCalculateGoals();
     };
 
     return (
@@ -62,11 +78,16 @@ export default function HomeScreen() {
                         totalHabits={goalsData.totalHabits}
                         completedHabits={goalsData.completedHabits}
                     />
-                    <HabitTypeCarousel />
+                    <HabitTypeCarousel 
+                        selectedFilter={selectedFilter}
+                        onFilterChange={handleFilterChange}
+                        availableCategories={availableCategories}
+                    />
                 </View>
                 <HabitCardList 
                     selectedDate={selectedDate}
-                    onHabitsUpdate={calculateDailyGoals}
+                    selectedFilter={selectedFilter}
+                    onHabitsUpdate={handleHabitsUpdate}
                 />
             </View>
         </SafeAreaView>
