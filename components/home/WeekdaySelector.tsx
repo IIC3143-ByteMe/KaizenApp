@@ -9,7 +9,11 @@ interface DayItem {
   formattedDate: string;
 }
 
-export default function WeekdaySelector() {
+interface WeekdaySelectorProps {
+  onDateSelected?: (date: string) => void;
+}
+
+export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps) {
   const [days, setDays] = useState<DayItem[]>([]);
   
   useEffect(() => {
@@ -36,6 +40,10 @@ export default function WeekdaySelector() {
     }
     
     setDays(lastSevenDays);
+    
+    if (onDateSelected) {
+      onDateSelected(formatDate(today));
+    }
   }, []);
 
   const formatDate = (date: Date): string => {
@@ -53,6 +61,10 @@ export default function WeekdaySelector() {
       ...day,
       selected: idx === index
     })));
+    
+    if (onDateSelected) {
+      onDateSelected(selectedDay.formattedDate);
+    }
   };
 
   return (
@@ -71,7 +83,7 @@ export default function WeekdaySelector() {
       ))}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   row: {

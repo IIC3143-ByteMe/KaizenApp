@@ -58,7 +58,7 @@ export default function HabitDetailScreen() {
     try {
       setProgress(newValue);
       const updatedHabit = await updateHabitProgress(id, newValue);
-      if (updatedHabit && newValue >= parseInt(updatedHabit.goalValue) && progress < parseInt(updatedHabit.goalValue)) {
+      if (updatedHabit && newValue >= updatedHabit.goalValue && progress < updatedHabit.goalValue) {
         await incrementStreak();
       }
       if (updatedHabit) {
@@ -93,6 +93,69 @@ export default function HabitDetailScreen() {
           }
         }
       ]
+    );
+  };
+
+  const renderHabitDetails = () => {
+    if (!habit) return null;
+
+    return (
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Detalles del hábito</Text>
+        
+        <View style={styles.detailRow}>
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Tipo</Text>
+            <View style={[styles.tag, { backgroundColor: habit.habitType === 'Build' ? '#94A9FF' : '#FF9494' }]}>
+              <Text style={styles.tagText}>
+                {habit.habitType === 'Build' ? 'Construir' : 'Dejar'}
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.detailItem}>
+            <Text style={styles.detailLabel}>Categoría</Text>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{habit.group}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.detailSection}>
+          <Text style={styles.detailLabel}>Días asignados</Text>
+          <View style={styles.daysContainer}>
+            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => {
+              const isActive = habit.taskDays.includes(
+                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]
+              );
+              return (
+                <View 
+                  key={day} 
+                  style={[styles.dayBadge, isActive && styles.activeDayBadge]}
+                >
+                  <Text style={[styles.dayText, isActive && styles.activeDayText]}>
+                    {day}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        {habit.reminders && (
+          <View style={styles.detailSection}>
+            <Text style={styles.detailLabel}>Recordatorios</Text>
+            <View style={styles.remindersContainer}>
+              {habit.reminders.split(',').map((time, index) => (
+                <View key={index} style={styles.reminderBadge}>
+                  <Ionicons name="alarm-outline" size={14} color="#555" />
+                  <Text style={styles.reminderText}>{time}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+      </View>
     );
   };
 
@@ -174,6 +237,8 @@ export default function HabitDetailScreen() {
             </View>
           </View>
         </View>
+        
+        {renderHabitDetails()}
         
         {isCompleted && (
           <View style={[styles.card, styles.completedCard]}>
@@ -298,5 +363,74 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4CAF50',
     marginLeft: 8,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 12,
+  },
+  detailItem: {
+    flex: 1,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  tag: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+  },
+  tagText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  detailSection: {
+    marginTop: 16,
+  },
+  daysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeDayBadge: {
+    backgroundColor: '#94A9FF',
+  },
+  dayText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  activeDayText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
+  remindersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  reminderBadge: {
+    flexDirection: 'row',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    gap: 4,
+  },
+  reminderText: {
+    fontSize: 12,
+    color: '#555',
   },
 });

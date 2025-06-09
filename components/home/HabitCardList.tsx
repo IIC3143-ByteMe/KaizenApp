@@ -1,10 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, Text, View, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import HabitCard from '@components/home/HabitCard';
 import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage';
 
-export default function HabitCardList() {
+interface HabitCardListProps {
+  selectedDate?: string;
+  onHabitsUpdate?: () => void;
+}
+
+export default function HabitCardList({ selectedDate, onHabitsUpdate }: HabitCardListProps) {
     const router = useRouter();
     const [habits, setHabits] = useState<Habit[]>([]);
     const [loading, setLoading] = useState(true);
@@ -15,14 +20,24 @@ export default function HabitCardList() {
             loadHabits();
             
             return () => {};
-        }, [])
+        }, [selectedDate])
     );
 
     const loadHabits = async () => {
         try {
             setLoading(true);
             const savedHabits = await getHabits();
+            
+            // filtrar por fecha si es necesario
+            // const filteredHabits = selectedDate 
+            //    ? savedHabits.filter(habit => /* lógica para filtrar por fecha */)
+            //    : savedHabits;
+            
             setHabits(savedHabits);
+            
+            if (onHabitsUpdate) {
+                onHabitsUpdate();
+            }
         } catch (error) {
             console.error('Error loading habits:', error);
         } finally {
@@ -37,6 +52,10 @@ export default function HabitCardList() {
             
             const backendHabits = await fetchHabitsFromBackend();
             setHabits(backendHabits);
+            
+            if (onHabitsUpdate) {
+                onHabitsUpdate();
+            }
             
             console.log('✅ Hábitos actualizados correctamente');
         } catch (error) {
