@@ -1,23 +1,73 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const days = [
-  { label: 'Vie', selected: true },
-  { label: 'Sáb', checked: true },
-  { label: 'Dom', checked: true },
-  { label: 'Lun', checked: true },
-  { label: 'Mar', checked: false },
-  { label: 'Mié', checked: false },
-  { label: 'Jue', checked: false },
-];
+interface DayItem {
+  label: string;
+  value: number;
+  selected: boolean;
+  date: Date;
+  formattedDate: string;
+}
 
 export default function WeekdaySelector() {
+  const [days, setDays] = useState<DayItem[]>([]);
+  
+  useEffect(() => {
+    const dayLabels = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const lastSevenDays: DayItem[] = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      
+      const formattedDate = formatDate(date);
+      
+      lastSevenDays.push({
+        label: dayLabels[date.getDay()],
+        value: date.getDay(),
+        date: date,
+        formattedDate: formattedDate,
+        selected: i === 0
+      });
+    }
+    
+    setDays(lastSevenDays);
+  }, []);
+
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDayPress = (index: number) => {
+    const selectedDay = days[index];
+    console.log(`Día seleccionado: ${selectedDay.label} (fecha: ${selectedDay.formattedDate})`);
+    
+    setDays(days.map((day, idx) => ({
+      ...day,
+      selected: idx === index
+    })));
+  };
+
   return (
     <View style={styles.row}>
       {days.map((day, idx) => (
-        <View key={idx} style={[styles.dayContainer, day.selected && styles.selectedDay]}>
-          <Text style={styles.label}>{day.label}</Text>
-        </View>
+        <TouchableOpacity 
+          key={idx} 
+          style={[styles.dayContainer, day.selected && styles.selectedDay]}
+          onPress={() => handleDayPress(idx)}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.label, day.selected && styles.selectedLabel]}>
+            {day.label}
+          </Text>
+        </TouchableOpacity>
       ))}
     </View>
   );
@@ -37,7 +87,14 @@ const styles = StyleSheet.create({
     minWidth: 40,
   },
   selectedDay: {
-    backgroundColor: '#CBD3FF',
+    backgroundColor: '#94A9FF',
   },
-  label: { fontSize: 12 },
+  label: { 
+    fontSize: 12,
+    color: '#555'
+  },
+  selectedLabel: {
+    color: 'white',
+    fontWeight: '600'
+  }
 });
