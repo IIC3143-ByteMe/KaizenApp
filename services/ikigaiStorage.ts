@@ -1,25 +1,72 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../api';
 
-type Arquetipo = "constante" | "explorador" | "social" | "reflexivo";
-
-interface IkigaiData {
-  arquetipo: Arquetipo;
+export type IkigaiData = {
+  _id?: string;
+  arquetipo: 'constante' | 'explorador' | 'social' | 'reflexivo';
   amas: string;
   bueno: string;
   necesita: string;
   pagar: string;
-}
+};
 
-const IKIGAI_KEY = "kaizen_ikigai";
+const IKIGAI_KEY = 'kaizen_ikigai';
 const QUIZ_DONE_KEY = "kaizen_quiz_done";
 
 export const saveIkigai = async (ikigai: IkigaiData) => {
-  await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(ikigai));
+  try {
+    const response = await api.post('/ikigai/', ikigai);
+    await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(response.data));
+    return response.data;
+  } catch (error: any) {
+    console.error('❌ Error al guardar Ikigai en backend:', error);
+    throw error;
+  }
+};
+
+export const updateIkigai = async (ikigai: Partial<IkigaiData>) => {
+  try {
+    const existing = await getIkigai();
+    if (!existing) throw new Error('No hay Ikigai existente para actualizar');
+
+    const updated = { ...existing, ...ikigai };
+    const response = await api.put('/ikigai/', updated);
+    await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(response.data));
+    return response.data;
+  } catch (error: any) {
+    console.error('❌ Error al actualizar Ikigai:', error);
+    throw error;
+  }
+};
+
+export const fetchIkigaiFromBackend = async (): Promise<IkigaiData | null> => {
+  try {
+    const response = await api.get('/ikigai/');
+    const ikigaiArray = response.data;
+
+    if (!Array.isArray(ikigaiArray) || ikigaiArray.length === 0) {
+      console.warn('⚠️ No se encontró Ikigai en el backend');
+      return null;
+    }
+
+    const ikigai = ikigaiArray[0];
+
+    await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(ikigai));
+    return ikigai;
+  } catch (error) {
+    console.error('❌ Error al obtener Ikigai desde backend:', error);
+    return null;
+  }
 };
 
 export const getIkigai = async (): Promise<IkigaiData | null> => {
-  const data = await AsyncStorage.getItem(IKIGAI_KEY);
-  return data ? JSON.parse(data) : null;
+  try {
+    const stored = await AsyncStorage.getItem(IKIGAI_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error('❌ Error al obtener Ikigai desde AsyncStorage:', error);
+    return null;
+  }
 };
 
 export const setQuizDone = async () => {
