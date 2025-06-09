@@ -4,7 +4,7 @@ import PrimaryButton from '@components/utils/PrimaryButton';
 import SecondaryButton from '@components/utils/SecondaryButton';
 import { useRouter } from 'expo-router';
 import { login } from '@services/authService';
-
+import { fetchHabitsFromBackend } from '@services/habitStorage';
 
 export default function AuthForm() {
     const router = useRouter();
@@ -23,6 +23,10 @@ export default function AuthForm() {
         try {
             setLoading(true);
             await login({ email, password });
+            
+            console.log('🔄 Cargando hábitos después del login...');
+            await fetchHabitsFromBackend();
+            
             router.replace("/(main)/(tabs)/HomeScreen");
         } catch (error) {
             Alert.alert(

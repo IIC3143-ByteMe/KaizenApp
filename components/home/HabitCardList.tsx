@@ -1,13 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { FlatList, StyleSheet, Text, View, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import HabitCard from '@components/home/HabitCard';
-import { getHabits, Habit } from '@services/habitStorage';
+import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage';
 
 export default function HabitCardList() {
     const router = useRouter();
     const [habits, setHabits] = useState<Habit[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -29,6 +30,22 @@ export default function HabitCardList() {
         }
     };
 
+    const onRefresh = async () => {
+        try {
+            setRefreshing(true);
+            console.log('🔄 Actualizando hábitos desde el backend...');
+            
+            const backendHabits = await fetchHabitsFromBackend();
+            setHabits(backendHabits);
+            
+            console.log('✅ Hábitos actualizados correctamente');
+        } catch (error) {
+            console.error('❌ Error al actualizar hábitos:', error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -39,12 +56,27 @@ export default function HabitCardList() {
 
     if (habits.length === 0) {
         return (
-            <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No tienes hábitos guardados</Text>
-                <Text style={styles.emptySuggestion}>
-                    Agrega uno nuevo desde la pestaña "Agregar"
-                </Text>
-            </View>
+            <ScrollView 
+                contentContainerStyle={styles.emptyScrollContainer}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={['#94A9FF']}
+                        tintColor="#94A9FF"
+                    />
+                }
+            >
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No tienes hábitos guardados</Text>
+                    <Text style={styles.emptySuggestion}>
+                        Agrega uno nuevo desde la pestaña "Agregar"
+                    </Text>
+                    <Text style={styles.pullToRefreshHint}>
+                        Desliza hacia abajo para buscar hábitos en la nube
+                    </Text>
+                </View>
+            </ScrollView>
         );
     }
 
@@ -67,6 +99,14 @@ export default function HabitCardList() {
             )}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={['#94A9FF']}
+                    tintColor="#94A9FF"
+                />
+            }
         />
     );
 };
@@ -80,11 +120,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    emptyScrollContainer: {
+        flexGrow: 1,
+    },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        minHeight: 400,
     },
     emptyText: {
         fontSize: 18,
@@ -96,5 +140,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
         textAlign: 'center',
+        marginBottom: 24,
+    },
+    pullToRefreshHint: {
+        fontSize: 14,
+        color: '#94A9FF',
+        textAlign: 'center',
+        marginTop: 16,
+        fontStyle: 'italic',
     }
 });

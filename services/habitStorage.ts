@@ -178,3 +178,37 @@ export const clearAllHabits = async (): Promise<void> => {
         throw error;
     }
 };
+
+export const fetchHabitsFromBackend = async (): Promise<Habit[]> => {
+  try {
+    console.log('🔄 Obteniendo hábitos del backend...');
+    const response = await api.get('/habits/');
+    
+    const backendHabits = response.data.map((backendHabit: any) => ({
+      id: backendHabit._id,
+      title: backendHabit.title,
+      description: backendHabit.description,
+      icon: backendHabit.icon,
+      color: backendHabit.color,
+      group: backendHabit.grupo,
+      habitType: backendHabit.type,
+      goalPeriod: backendHabit.goal_period,
+      goalValue: backendHabit.goal_value,
+      goalUnit: backendHabit.goal_value_unit,
+      taskDays: backendHabit.task_days,
+      reminders: backendHabit.reminders,
+      ikigaiCategory: backendHabit.ikigai_category,
+      completed: backendHabit.progress || 0,
+      syncedWithBackend: true
+    }));
+
+    console.log(`✅ Obtenidos ${backendHabits.length} hábitos del backend`);
+    
+    await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(backendHabits));
+    
+    return backendHabits;
+  } catch (error) {
+    console.error('❌ Error al obtener hábitos del backend:', error);
+    return getHabits();
+  }
+};
