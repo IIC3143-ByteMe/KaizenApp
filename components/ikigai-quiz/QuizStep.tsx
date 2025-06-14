@@ -21,35 +21,17 @@ interface Props {
   step: number;
   total: number;
   data: QuestionData;
+  currentValue?: string;
   onAnswer: (value: string) => void;
+  onBack?: () => void;
 }
 
-function ContinueButton({
-  onPress,
-  disabled,
-}: {
-  onPress: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      style={[buttonStyles.button, disabled && buttonStyles.buttonDisabled]}
-      onPress={onPress}
-      disabled={disabled}
-    >
-      <Text style={[buttonStyles.label, disabled && buttonStyles.labelDisabled]}>
-        Continuar
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-export default function QuizStep({ step, total, data, onAnswer }: Props) {
+export default function QuizStep({ step, total, data, currentValue, onAnswer, onBack }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
-    setSelected(null);
-  }, [data]);
+    setSelected(currentValue || null);
+  }, [data, currentValue]);
 
   const handleSelect = (value: string) => {
     setSelected(value);
@@ -108,7 +90,32 @@ export default function QuizStep({ step, total, data, onAnswer }: Props) {
           ))}
         </View>
 
-        <ContinueButton onPress={handleContinue} disabled={!selected} />
+        <View style={styles.buttonRow}>
+          {onBack && (
+            <TouchableOpacity style={[buttonStyles.button, styles.buttonHalf]} onPress={onBack}>
+              <Text style={buttonStyles.label}>‹ Volver</Text>
+            </TouchableOpacity>
+          )}
+          
+          <TouchableOpacity
+            style={[
+              buttonStyles.button,
+              styles.buttonHalf,
+              !selected && buttonStyles.buttonDisabled,
+            ]}
+            onPress={handleContinue}
+            disabled={!selected}
+          >
+            <Text
+              style={[
+                buttonStyles.label,
+                !selected && buttonStyles.labelDisabled,
+              ]}
+            >
+              Continuar ›
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -163,6 +170,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 50,
     color: "#000",
+    minHeight: 70, 
+    justifyContent: "center",
   },
   optionsContainer: {
     flexDirection: "row",
@@ -173,7 +182,6 @@ const styles = StyleSheet.create({
   optionBox: {
     width: "48%",
     backgroundColor: "white",
-    paddingVertical: 16,
     paddingHorizontal: 12,
     borderRadius: 12,
     shadowColor: "#000",
@@ -182,6 +190,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 110,
   },
   optionSelected: {
     backgroundColor: "#7D89FF",
@@ -210,5 +221,14 @@ const styles = StyleSheet.create({
   },
   dotInactive: {
     backgroundColor: "#C7C9F7",
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 24,
+  },
+  buttonHalf: {
+    flex: 1,
   },
 });

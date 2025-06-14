@@ -23,9 +23,9 @@ export default function IkigaiQuizScreen() {
   });
   const [showArquetipo, setShowArquetipo] = useState<null | Arquetipo>(null);
 
-
   const handleAnswer = (value: string) => {
-    const updated = [...answers, value];
+    const updated = [...answers];
+    updated[step - 1] = value;
     setAnswers(updated);
 
     if (step === quizQuestions.length) {
@@ -37,8 +37,13 @@ export default function IkigaiQuizScreen() {
     }
   };
 
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
   const handleDescriptionSubmit = async () => {
-    // Calcular arquetipo
     const arquetipo = calculateArquetipo(answers as Arquetipo[]);
 
     try {
@@ -52,30 +57,30 @@ export default function IkigaiQuizScreen() {
 
   return (
     <View style={styles.container}>
-        {step === 0 && <IkigaiIntroStep onStart={() => setStep(1)} />}
+      {step === 0 && <IkigaiIntroStep onStart={() => setStep(1)} />}
 
-        {step > 0 && step <= quizQuestions.length && (
-          <QuizStep
-            step={step}
-            total={quizQuestions.length}
-            data={quizQuestions[step - 1]}
-            onAnswer={handleAnswer}
-          />
-        )}
+      {step > 0 && step <= quizQuestions.length && (
+        <QuizStep
+          step={step}
+          total={quizQuestions.length}
+          data={quizQuestions[step - 1]}
+          currentValue={answers[step - 1]}
+          onAnswer={handleAnswer}
+          onBack={handleBack}
+        />
+      )}
 
-        {showArquetipo && step === quizQuestions.length + 1 && (
-          <>
-            <ArquetipoResult arquetipo={showArquetipo} onContinue={() => setStep(step + 1)} />
-          </>
-        )}
+      {showArquetipo && step === quizQuestions.length + 1 && (
+        <ArquetipoResult arquetipo={showArquetipo} onContinue={() => setStep(step + 1)} />
+      )}
 
-        {step > quizQuestions.length + 1 && (
-          <IkigaiDescriptionForm
-            values={ikigaiData}
-            onChange={setIkigaiData}
-            onSubmit={handleDescriptionSubmit}
-          />
-        )}
+      {step > quizQuestions.length + 1 && (
+        <IkigaiDescriptionForm
+          values={ikigaiData}
+          onChange={setIkigaiData}
+          onSubmit={handleDescriptionSubmit}
+        />
+      )}
     </View>
   );
 }
