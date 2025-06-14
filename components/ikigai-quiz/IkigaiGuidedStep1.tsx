@@ -9,27 +9,30 @@ import {
 } from "react-native";
 
 interface Props {
-  onStart: () => void;
+  onContinue: () => void;
 }
 
-export default function IkigaiIntroStep({ onStart }: Props) {
+export default function IkigaiGuidedStep1({ onContinue }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>¿Qué es el Ikigai?</Text>
-        <Text style={styles.paragraph}>El Ikigai es tu razón de ser.</Text>
+        <Text style={styles.title}>Vamos paso a paso</Text>
+
         <Text style={styles.paragraph}>
-          Representa el punto de unión entre lo que amas, lo que se te da bien,
-          lo que el mundo necesita y por lo que pueden pagarte.
+          Si aún no estás seguro de qué poner en tu Ikigai, no te preocupes.
         </Text>
         <Text style={styles.paragraph}>
-          Los puntos de unión representan PASIÓN, MISIÓN, VOCACIÓN Y
-          PROFESIÓN.
+          Vamos a guiarte sección por sección, con ejemplos e ideas que te
+          ayudarán a reflexionar.
+        </Text>
+        <Text style={styles.paragraph}>
+          Y recuerda: siempre vas a poder editar tus respuestas más adelante,
+          cuando lo sientas necesario.
         </Text>
 
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.button} onPress={onStart}>
-            <Text style={styles.buttonText}>Descubramos tu IKIGAI</Text>
+          <TouchableOpacity style={styles.button} onPress={onContinue}>
+            <Text style={styles.buttonText}>Comenzar</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: "#555",
-    marginBottom: 32,
+    marginBottom: 24,
   },
   buttonWrapper: {
     marginTop: 16,
