@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import IkigaiIntroStep from "@components/ikigai-quiz/IkigaiIntroStep";
 import QuizStep from "@components/ikigai-quiz/QuizStep";
 import IkigaiDescriptionForm from "@components/ikigai-quiz/IkigaiDescriptionForm";
 import ArquetipoResult from "@components/ikigai-quiz/ArquetipoResult";
-import PrimaryButton from "@components/utils/PrimaryButton";
 import { setQuizDone, saveIkigai } from "@services/ikigaiStorage";
 import { useRouter } from "expo-router";
 import { calculateArquetipo } from "@components/utils/calculateArquetipo";
-import { quizQuestions } from "@components/ikigai-quiz/quizQuestions";
-import { Arquetipo } from "@components/ikigai-quiz/quizQuestions";
+import { quizQuestions, Arquetipo } from "@components/ikigai-quiz/quizQuestions";
 
 export default function IkigaiQuizScreen() {
   const router = useRouter();
@@ -27,14 +25,14 @@ export default function IkigaiQuizScreen() {
     const updated = [...answers];
     updated[step - 1] = value;
     setAnswers(updated);
+  };
 
+  const handleContinue = () => {
     if (step === quizQuestions.length) {
-      const result = calculateArquetipo(updated as Arquetipo[]);
+      const result = calculateArquetipo(answers as Arquetipo[]);
       setShowArquetipo(result);
-      setStep(step + 1);
-    } else {
-      setStep(step + 1);
     }
+    setStep(step + 1);
   };
 
   const handleBack = () => {
@@ -67,6 +65,7 @@ export default function IkigaiQuizScreen() {
           currentValue={answers[step - 1]}
           onAnswer={handleAnswer}
           onBack={handleBack}
+          onContinue={handleContinue}
         />
       )}
 

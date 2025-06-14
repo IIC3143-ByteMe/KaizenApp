@@ -24,9 +24,18 @@ interface Props {
   currentValue?: string;
   onAnswer: (value: string) => void;
   onBack?: () => void;
+  onContinue: () => void;
 }
 
-export default function QuizStep({ step, total, data, currentValue, onAnswer, onBack }: Props) {
+export default function QuizStep({
+  step,
+  total,
+  data,
+  currentValue,
+  onAnswer,
+  onBack,
+  onContinue,
+}: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,12 +44,7 @@ export default function QuizStep({ step, total, data, currentValue, onAnswer, on
 
   const handleSelect = (value: string) => {
     setSelected(value);
-  };
-
-  const handleContinue = () => {
-    if (selected) {
-      onAnswer(selected);
-    }
+    onAnswer(value);
   };
 
   return (
@@ -92,18 +96,21 @@ export default function QuizStep({ step, total, data, currentValue, onAnswer, on
 
         <View style={styles.buttonRow}>
           {onBack && (
-            <TouchableOpacity style={[buttonStyles.button, styles.buttonHalf]} onPress={onBack}>
+            <TouchableOpacity
+              style={[buttonStyles.button, styles.buttonHalf]}
+              onPress={onBack}
+            >
               <Text style={buttonStyles.label}>‹ Volver</Text>
             </TouchableOpacity>
           )}
-          
+
           <TouchableOpacity
             style={[
               buttonStyles.button,
               styles.buttonHalf,
               !selected && buttonStyles.buttonDisabled,
             ]}
-            onPress={handleContinue}
+            onPress={onContinue}
             disabled={!selected}
           >
             <Text
@@ -170,7 +177,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 50,
     color: "#000",
-    minHeight: 70, 
+    minHeight: 70,
     justifyContent: "center",
   },
   optionsContainer: {
@@ -190,8 +197,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     marginBottom: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     minHeight: 110,
   },
   optionSelected: {
@@ -223,8 +230,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#C7C9F7",
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 12,
     marginTop: 24,
   },
