@@ -9,27 +9,34 @@ import {
 } from "react-native";
 
 interface Props {
-  onStart: () => void;
+  onDirect: () => void;
+  onGuide: () => void;
 }
 
-export default function IkigaiIntroStep({ onStart }: Props) {
+export default function IkigaiPathChoiceStep({ onDirect, onGuide }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>¿Qué es el Ikigai?</Text>
-        <Text style={styles.paragraph}>El Ikigai es tu razón de ser.</Text>
+        <Text style={styles.title}>¿Cómo quieres completar tu Ikigai?</Text>
+
         <Text style={styles.paragraph}>
-          Representa el punto de unión entre lo que amas, lo que se te da bien,
-          lo que el mundo necesita y por lo que pueden pagarte.
-        </Text>
-        <Text style={styles.paragraph}>
-          Los puntos de unión representan PASIÓN, MISIÓN, VOCACIÓN Y
-          PROFESIÓN.
+          Puedes rellenarlo directamente si ya tienes claras tus respuestas,
+          o recibir una guía paso a paso que te ayudará a reflexionar sobre
+          cada sección.
         </Text>
 
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity style={styles.button} onPress={onStart}>
-            <Text style={styles.buttonText}>Descubramos tu IKIGAI</Text>
+          <TouchableOpacity style={styles.button} onPress={onDirect}>
+            <Text style={styles.buttonText}>Rellenar directamente</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.secondaryButton]}
+            onPress={onGuide}
+          >
+            <Text style={[styles.buttonText, styles.secondaryButtonText]}>
+              Quiero una guía paso a paso
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -61,7 +68,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   buttonWrapper: {
-    marginTop: 16,
+    gap: 16,
   },
   button: {
     backgroundColor: "#94A9FF",
@@ -73,5 +80,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  secondaryButton: {
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: "#94A9FF",
+  },
+  secondaryButtonText: {
+    color: "#94A9FF",
   },
 });
