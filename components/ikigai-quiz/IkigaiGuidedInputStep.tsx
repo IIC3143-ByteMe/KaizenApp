@@ -34,56 +34,62 @@ export default function IkigaiGuidedInputStep({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>{prompt}</Text>
+      <View style={styles.wrapper}>
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <Text style={styles.title}>{prompt}</Text>
 
-        <TextInput
-          style={styles.input}
-          value={input}
-          onChangeText={(text) => setInput(text)}
-          placeholder={placeholder}
-          placeholderTextColor="#888"
-          multiline
-          numberOfLines={6}
-          textAlignVertical="top"
-        />
+          <TextInput
+            style={styles.input}
+            value={input}
+            onChangeText={setInput}
+            placeholder={placeholder}
+            placeholderTextColor="#888"
+            multiline
+            numberOfLines={6}
+            textAlignVertical="top"
+          />
+        </ScrollView>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.secondaryButton} onPress={onBack}>
-            <Text style={styles.secondaryText}>‹ Volver</Text>
+          <TouchableOpacity style={[styles.button, styles.buttonHalf]} onPress={onBack}>
+            <Text style={styles.label}>‹ Volver</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, !input.trim() && styles.buttonDisabled]}
+            style={[styles.button, styles.buttonHalf]}
             onPress={() => {
               onChange(input.trim());
               onContinue();
             }}
-            disabled={!input.trim()}
           >
-            <Text
-              style={[
-                styles.buttonText,
-                !input.trim() && styles.disabledButtonText,
-              ]}
-            >
-              Continuar
-            </Text>
+            <Text style={styles.label}>Continuar ›</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F6F6F6" },
-  container: { flexGrow: 1, justifyContent: "center", padding: 48 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F6F6F6",
+  },
+  wrapper: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 48,
+    paddingTop: 150,
+    paddingBottom: 150,
+  },
+  scroll: {
+    paddingTop: 48,
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 48,
   },
   input: {
     backgroundColor: "white",
@@ -93,33 +99,27 @@ const styles = StyleSheet.create({
     minHeight: 150,
     borderColor: "#ddd",
     borderWidth: 1,
-    marginBottom: 32,
+    marginBottom: 48,
   },
-  buttonRow: { flexDirection: "row", gap: 12 },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   button: {
-    flex: 1,
     backgroundColor: "#94A9FF",
-    borderRadius: 30,
     paddingVertical: 14,
+    borderRadius: 25,
     alignItems: "center",
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
-  },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  disabledButtonText: {
-    color: "#888",
-  },
-  secondaryButton: {
+    elevation: 3,
     flex: 1,
-    backgroundColor: "#ddd",
-    borderRadius: 30,
-    paddingVertical: 14,
-    alignItems: "center",
   },
-  secondaryText: {
-    color: "#333",
-    fontWeight: "bold",
+  buttonHalf: {
+    flex: 1,
+  },
+  label: {
+    color: "white",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });

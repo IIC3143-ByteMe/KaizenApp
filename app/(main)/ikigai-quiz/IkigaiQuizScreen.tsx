@@ -112,7 +112,7 @@ export default function IkigaiQuizScreen() {
             explanation={currentGuided.explanation!}
             examples={currentGuided.examples!}
             onContinue={() => setGuidedStep(guidedStep + 1)}
-            onBack={() => setGuidedStep(guidedStep - 1)}
+            onBack={guidedStep > 0 ? () => setGuidedStep(guidedStep - 1) : undefined}
           />
         ) : (
           <IkigaiGuidedInputStep
