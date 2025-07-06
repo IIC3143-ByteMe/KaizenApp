@@ -58,7 +58,7 @@ export default function HabitDetailScreen() {
     try {
       setProgress(newValue);
       const updatedHabit = await updateHabitProgress(id, newValue);
-      if (updatedHabit && newValue >= updatedHabit.goalValue && progress < updatedHabit.goalValue) {
+      if (updatedHabit && newValue >= updatedHabit.goalTarget && progress < updatedHabit.goalTarget) {
         await incrementStreak();
       }
       if (updatedHabit) {
@@ -142,11 +142,11 @@ export default function HabitDetailScreen() {
           </View>
         </View>
 
-        {habit.reminders && (
+        {habit.reminders && habit.reminders.length > 0 && (
           <View style={styles.detailSection}>
             <Text style={styles.detailLabel}>Recordatorios</Text>
             <View style={styles.remindersContainer}>
-              {habit.reminders.split(',').map((time, index) => (
+              {habit.reminders.map((time, index) => (
                 <View key={index} style={styles.reminderBadge}>
                   <Ionicons name="alarm-outline" size={14} color="#555" />
                   <Text style={styles.reminderText}>{time}</Text>

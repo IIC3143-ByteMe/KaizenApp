@@ -46,8 +46,8 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [goalUnit, setGoalUnit] = useState('');
     const [group, setGroup] = useState('Healthy');
     const [habitType, setHabitType] = useState('Build');
-    const [taskDays, setTaskDays] = useState(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
-    const [reminders, setReminders] = useState(['08:00']);
+    const [taskDays, setTaskDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+    const [reminders, setReminders] = useState<string[]>(['08:00']);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddHabit = async () => {
