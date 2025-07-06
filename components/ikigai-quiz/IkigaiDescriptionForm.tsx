@@ -15,16 +15,16 @@ import PrimaryButton from "@components/utils/PrimaryButton";
 
 interface Props {
   values: {
-    amas: string;
-    bueno: string;
-    necesita: string;
-    pagar: string;
+    you_love: string;
+    good_at: string;
+    world_needs: string;
+    is_profitable: string;
   };
   onChange: (values: {
-    amas: string;
-    bueno: string;
-    necesita: string;
-    pagar: string;
+    you_love: string;
+    good_at: string;
+    world_needs: string;
+    is_profitable: string;
   }) => void;
   onSubmit: () => void;
 }
@@ -51,29 +51,29 @@ export default function IkigaiDescriptionForm({ values, onChange, onSubmit }: Pr
                 <TextInput
                   style={styles.input}
                   placeholder="¿Qué amas?"
-                  value={values.amas}
-                  onChangeText={(text) => onChange({ ...values, amas: text })}
+                  value={values.you_love}
+                  onChangeText={(text) => onChange({ ...values, you_love: text })}
                   multiline
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="¿En qué eres bueno/a?"
-                  value={values.bueno}
-                  onChangeText={(text) => onChange({ ...values, bueno: text })}
+                  value={values.good_at}
+                  onChangeText={(text) => onChange({ ...values, good_at: text })}
                   multiline
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="¿Qué necesita el mundo?"
-                  value={values.necesita}
-                  onChangeText={(text) => onChange({ ...values, necesita: text })}
+                  value={values.world_needs}
+                  onChangeText={(text) => onChange({ ...values, world_needs: text })}
                   multiline
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="¿Por qué te pueden pagar?"
-                  value={values.pagar}
-                  onChangeText={(text) => onChange({ ...values, pagar: text })}
+                  value={values.is_profitable}
+                  onChangeText={(text) => onChange({ ...values, is_profitable: text })}
                   multiline
                 />
               </View>

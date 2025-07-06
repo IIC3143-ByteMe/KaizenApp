@@ -11,17 +11,17 @@ interface IkigaiEditModalProps {
 }
 
 export interface Descriptions {
-  amas: string;
-  bueno: string;
-  necesita: string;
-  pagar: string;
+  you_love: string;
+  good_at: string;
+  world_needs: string;
+  is_profitable: string;
 }
 
 export default function IkigaiEditModal({
   visible,
   onClose,
   onSave,
-  initialValues = { amas: '', bueno: '', necesita: '', pagar: '' }
+  initialValues = { you_love: '', good_at: '', world_needs: '', is_profitable: '' }
 }: IkigaiEditModalProps) {
   const [descriptions, setDescriptions] = useState(initialValues);
 
@@ -40,11 +40,11 @@ export default function IkigaiEditModal({
       }
 
       const updated = {
-        arquetipo: existing.arquetipo,
-        amas: descriptions.amas || existing.amas,
-        bueno: descriptions.bueno || existing.bueno,
-        necesita: descriptions.necesita || existing.necesita,
-        pagar: descriptions.pagar || existing.pagar,
+        arquetype: existing.arquetype,
+        you_love: descriptions.you_love || existing.you_love,
+        good_at: descriptions.good_at || existing.good_at,
+        world_needs: descriptions.world_needs || existing.world_needs,
+        is_profitable: descriptions.is_profitable || existing.is_profitable,
       };
 
       await updateIkigai(updated);
@@ -57,7 +57,7 @@ export default function IkigaiEditModal({
 
   useEffect(() => {
     if (!visible) {
-      setDescriptions({ amas: '', bueno: '', necesita: '', pagar: '' });
+      setDescriptions({ you_love: '', good_at: '', world_needs: '', is_profitable: '' });
     }
   }, [visible]);
 
@@ -82,29 +82,29 @@ export default function IkigaiEditModal({
             placeholder="Lo que AMAS"
             placeholderTextColor="#777"
             style={styles.input}
-            value={descriptions.amas}
-            onChangeText={(text) => handleChange('amas', text)}
+            value={descriptions.you_love}
+            onChangeText={(text) => handleChange('you_love', text)}
           />
           <TextInput
             placeholder="En lo que eres BUENO"
             placeholderTextColor="#777"
             style={styles.input}
-            value={descriptions.bueno}
-            onChangeText={(text) => handleChange('bueno', text)}
+            value={descriptions.good_at}
+            onChangeText={(text) => handleChange('good_at', text)}
           />
           <TextInput
             placeholder="Lo que el mundo NECESITA"
             placeholderTextColor="#777"
             style={styles.input}
-            value={descriptions.necesita}
-            onChangeText={(text) => handleChange('necesita', text)}
+            value={descriptions.world_needs}
+            onChangeText={(text) => handleChange('world_needs', text)}
           />
           <TextInput
             placeholder="Por lo que te pueden PAGAR"
             placeholderTextColor="#777"
             style={styles.input}
-            value={descriptions.pagar}
-            onChangeText={(text) => handleChange('pagar', text)}
+            value={descriptions.is_profitable}
+            onChangeText={(text) => handleChange('is_profitable', text)}
           />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>

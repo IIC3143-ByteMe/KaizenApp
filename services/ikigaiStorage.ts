@@ -3,11 +3,11 @@ import api from '../api';
 
 export type IkigaiData = {
   _id?: string;
-  arquetipo: 'constante' | 'explorador' | 'social' | 'reflexivo';
-  amas: string;
-  bueno: string;
-  necesita: string;
-  pagar: string;
+  arquetype: 'constante' | 'explorador' | 'social' | 'reflexivo';
+  you_love: string;
+  good_at: string;
+  world_needs: string;
+  is_profitable: string;
 };
 
 const IKIGAI_KEY = 'kaizen_ikigai';

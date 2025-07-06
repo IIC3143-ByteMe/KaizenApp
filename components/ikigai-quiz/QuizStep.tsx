@@ -9,7 +9,7 @@ import {
 
 interface Option {
   label: string;
-  arquetipo: string;
+  arquetype: string;
 }
 
 interface QuestionData {
@@ -58,7 +58,7 @@ export default function QuizStep({
 
         <View style={styles.optionsContainer}>
           {data.options.map((opt, index) => {
-            const isSelected = selected === opt.arquetipo;
+            const isSelected = selected === opt.arquetype;
             return (
               <TouchableOpacity
                 key={index}
@@ -66,7 +66,7 @@ export default function QuizStep({
                   styles.optionBox,
                   isSelected && styles.optionSelected,
                 ]}
-                onPress={() => handleSelect(opt.arquetipo)}
+                onPress={() => handleSelect(opt.arquetype)}
                 activeOpacity={0.8}
               >
                 <Text
