@@ -6,12 +6,14 @@ import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage
 
 interface HabitCardListProps {
   selectedDate?: string;
+  selectedDayCode?: string;
   selectedFilter?: string;
   onHabitsUpdate?: () => void;
 }
 
 export default function HabitCardList({ 
     selectedDate, 
+    selectedDayCode,
     selectedFilter = 'all',
     onHabitsUpdate 
 }: HabitCardListProps) {
@@ -30,7 +32,14 @@ export default function HabitCardList({
 
     useEffect(() => {
         filterHabits();
-    }, [habits, selectedFilter]);
+    }, [habits, selectedFilter, selectedDate]);
+
+    const getDayFromDate = (dateString: string): string => {
+        const date = new Date(dateString);
+        const dayOfWeek = date.getDay();
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return dayNames[dayOfWeek];
+    };
 
     const loadHabits = async () => {
         try {
@@ -49,15 +58,22 @@ export default function HabitCardList({
     };
 
     const filterHabits = () => {
-        if (selectedFilter === 'all') {
-            setFilteredHabits(habits);
-            return;
+        let filtered = habits;
+        
+        if (selectedDayCode) {
+            filtered = filtered.filter(habit => 
+                habit.taskDays && habit.taskDays.includes(selectedDayCode)
+            );
+            console.log(`Filtrando por día: ${selectedDayCode}, encontrados: ${filtered.length}`);
         }
         
-        const filtered = habits.filter(habit => habit.group === selectedFilter);
+        if (selectedFilter !== 'all') {
+            filtered = filtered.filter(habit => habit.group === selectedFilter);
+        }
+        
         setFilteredHabits(filtered);
         
-        console.log(`Filtrado por: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
+        console.log(`Filtrado por día: ${selectedDayCode}, categoría: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
     };
 
     const onRefresh = async () => {
@@ -139,7 +155,7 @@ export default function HabitCardList({
                     description={item.description}
                     icon={item.icon}
                     color={item.color}
-                    goalValue={item.goalValue}
+                    goalTarget={item.goalTarget}
                     goalUnit={item.goalUnit}
                     completed={item.completed || 0}
                     onPress={() => router.push(`/(main)/habit/${item.id}`)}

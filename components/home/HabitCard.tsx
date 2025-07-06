@@ -9,7 +9,7 @@ type Props = {
     description: string;
     icon: string;
     color: string;
-    goalValue: number;
+    goalTarget: number;
     goalUnit: string;
     completed?: number;
     onPress?: () => void;
@@ -20,14 +20,14 @@ export default function HabitCard({
     description, 
     icon, 
     color, 
-    goalValue, 
+    goalTarget, 
     goalUnit, 
     completed = 0, 
     onPress 
 }: Props) {
     const unitData = UNITS.find(unit => unit.id === goalUnit);
     
-    const goalValueNum = goalValue || 1;
+    const goalValueNum = goalTarget || 1;
     const progress = Math.min(100, Math.max(0, (completed / goalValueNum) * 100));
     const isDone = completed >= goalValueNum;
 
@@ -57,7 +57,7 @@ export default function HabitCard({
                         />
                     </View>
                     <Text style={styles.progressText}>
-                        {completed}/{goalValue} {unitData?.label || goalUnit}
+                        {completed}/{goalTarget} {unitData?.label || goalUnit}
                     </Text>
                 </View>
             </View>

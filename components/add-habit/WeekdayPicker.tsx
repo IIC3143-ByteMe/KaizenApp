@@ -12,33 +12,30 @@ const DAYS = [
 ];
 
 interface WeekdayPickerProps {
-    selectedDays: string;
-    onDaysChange: (days: string) => void;
+    selectedDays: string[];
+    onDaysChange: (days: string[]) => void;
 }
 
 export default function WeekdayPicker({ selectedDays, onDaysChange }: WeekdayPickerProps) {
     const [selectedDaysList, setSelectedDaysList] = useState<string[]>([]);
 
-    // Inicializar los días seleccionados desde el string
     useEffect(() => {
-        if (selectedDays) {
-            setSelectedDaysList(selectedDays.split(','));
+        if (selectedDays && Array.isArray(selectedDays)) {
+            setSelectedDaysList(selectedDays);
         }
-    }, []);
+    }, [selectedDays]);
 
     const toggleDay = (dayId: string) => {
         let newSelectedDays;
         
         if (selectedDaysList.includes(dayId)) {
-            // Quitar día
             newSelectedDays = selectedDaysList.filter(d => d !== dayId);
         } else {
-            // Añadir día
             newSelectedDays = [...selectedDaysList, dayId];
         }
         
         setSelectedDaysList(newSelectedDays);
-        onDaysChange(newSelectedDays.join(','));
+        onDaysChange(newSelectedDays);
     };
 
     return (

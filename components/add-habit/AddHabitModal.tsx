@@ -41,12 +41,13 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [description, setDescription] = useState(selectedTemplate?.description || '');
     const [icon, setIcon] = useState(selectedTemplate?.icon || '');
     const [color, setColor] = useState(selectedTemplate?.color || '#A4B1FF');
-    const [goalValue, setGoalValue] = useState<number>(0);
+    const [goalTarget, setGoalTarget] = useState<number>(0);
+    const [goalType, setGoalType] = useState('Count');
     const [goalUnit, setGoalUnit] = useState('');
     const [group, setGroup] = useState('Healthy');
     const [habitType, setHabitType] = useState('Build');
-    const [taskDays, setTaskDays] = useState('Mon,Tue,Wed,Thu,Fri');
-    const [reminders, setReminders] = useState('08:00');
+    const [taskDays, setTaskDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+    const [reminders, setReminders] = useState<string[]>(['08:00']);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddHabit = async () => {
@@ -61,7 +62,7 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 return;
             }
 
-            if (!goalValue || !goalUnit) {
+            if (!goalTarget || !goalUnit) {
                 Alert.alert('Error', 'Por favor establece una meta para tu hábito');
                 return;
             }
@@ -73,14 +74,14 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 description,
                 icon,
                 color,
-                goalValue,
-                goalUnit,
                 group,
                 habitType,
                 goalPeriod: 'daily',
+                goalType,
+                goalTarget,
+                goalUnit,
                 taskDays,
-                reminders,
-                ikigaiCategory: null
+                reminders
             };
             
             await saveHabit(habitData);
@@ -137,16 +138,15 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                         onColorChange={setColor}
                     />
                     
-                    {/* Cambiado nombre de prop de type a group */}
                     <TypeSelector 
                         selectedType={group}
                         onTypeChange={setGroup}
                     />
                     
                     <GoalSelector 
-                        initialValue={goalValue}
+                        initialValue={goalTarget}
                         initialUnit={goalUnit}
-                        onValueChange={setGoalValue}
+                        onValueChange={setGoalTarget}
                         onUnitChange={setGoalUnit}
                     />
                     

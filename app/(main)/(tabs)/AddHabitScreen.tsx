@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import HabitTemplateItem from '@components/add-habit/HabitTemplateItem';
 import AddHabitModal, { HabitTemplate } from '@components/add-habit/AddHabitModal';
-import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 
 const HABIT_TEMPLATES = [
     {
@@ -96,8 +95,6 @@ export default function AddHabitScreen() {
                     <Text style={styles.title}>Plantillas de hábitos</Text>
                     <Text style={styles.subtitle}>Selecciona un hábito para comenzar o crea uno nuevo</Text>
                 </View>
-
-                <HabitTypeCarousel />
 
                 <FlatList
                     data={HABIT_TEMPLATES}
