@@ -73,14 +73,13 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 description,
                 icon,
                 color,
-                goalValue,
-                goalUnit,
                 group,
                 habitType,
                 goalPeriod: 'daily',
+                goalValue, // type y target
+                goalUnit,
                 taskDays,
-                reminders,
-                ikigaiCategory: null
+                reminders
             };
             
             await saveHabit(habitData);

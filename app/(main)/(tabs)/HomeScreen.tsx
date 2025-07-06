@@ -35,7 +35,7 @@ export default function HomeScreen() {
             }
             
             const completed = habits.filter(habit => 
-                habit.completed && habit.completed >= habit.goalValue
+                habit.completed && habit.completed >= habit.goalTarget
             ).length;
             
             setGoalsData({

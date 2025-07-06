@@ -2,21 +2,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api';
 
 export interface Habit {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    color: string;
-    goalValue: number;
-    goalUnit: string;
-    group: string;
-    habitType: string;
-    goalPeriod: string;
-    taskDays: string;
-    reminders: string;
-    ikigaiCategory: string | null;
-    completed?: number;
-    syncedWithBackend?: boolean;
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  group: string;
+  habitType: string;
+  goalPeriod: string;
+  goalType: string;
+  goalTarget: number;
+  goalUnit: string;
+  taskDays: string[];
+  reminders: string[];
+  ikigaiCategory?: string | null;
+  completed?: number;
+  syncedWithBackend?: boolean;
 }
 
 const HABITS_STORAGE_KEY = 'kaizen_habits';
@@ -28,14 +29,16 @@ export const saveHabitToBackend = async (habit: Omit<Habit, 'id' | 'completed' |
             description: habit.description,
             icon: habit.icon,
             color: habit.color,
-            grupo: habit.group,
+            group: habit.group,
             type: habit.habitType,
-            goal_period: habit.goalPeriod,
-            goal_value: habit.goalValue,
-            goal_value_unit: habit.goalUnit,
+            goal: {
+                period: habit.goalPeriod,
+                type: habit.goalType,
+                target: habit.goalTarget,
+                unit: habit.goalUnit,
+            },
             task_days: habit.taskDays,
             reminders: habit.reminders,
-            ikigai_category: habit.ikigaiCategory
         };
         
         const response = await api.post('/habits/', backendHabit);
@@ -65,7 +68,7 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
         const existingHabits = await getHabits();
         
         let syncedWithBackend = false;
-        let backendId = null;
+        let backendId: string | null = null;
 
         try {
             const backendResponse = await saveHabitToBackend(habit);
@@ -203,16 +206,17 @@ export const fetchHabitsFromBackend = async (): Promise<Habit[]> => {
       description: backendHabit.description,
       icon: backendHabit.icon,
       color: backendHabit.color,
-      group: backendHabit.grupo,
+      group: backendHabit.group || backendHabit.grupo,
       habitType: backendHabit.type,
-      goalPeriod: backendHabit.goal_period,
-      goalValue: backendHabit.goal_value,
-      goalUnit: backendHabit.goal_value_unit,
-      taskDays: backendHabit.task_days,
-      reminders: backendHabit.reminders,
+      goalPeriod: backendHabit.goal.period,
+      goalType: backendHabit.goal.type,
+      goalTarget: backendHabit.goal.target,
+      goalUnit: backendHabit.goal.unit,
+      taskDays: Array.isArray(backendHabit.task_days) ? backendHabit.task_days : [],
+      reminders: Array.isArray(backendHabit.reminders) ? backendHabit.reminders : [],
       ikigaiCategory: backendHabit.ikigai_category,
-      completed: backendHabit.progress || 0,
-      syncedWithBackend: true
+      completed: backendHabit.progress ?? 0,
+      syncedWithBackend: true,
     }));
 
     console.log(`✅ Obtenidos ${backendHabits.length} hábitos del backend`);
