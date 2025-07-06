@@ -21,6 +21,13 @@ export default function HomeScreen() {
     const [availableCategories, setAvailableCategories] = useState<string[]>([]);
     const [allHabits, setAllHabits] = useState<Habit[]>([]);
 
+    const getDayFromDate = (dateString: string): string => {
+        const date = new Date(dateString);
+        const dayOfWeek = date.getDay();
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return dayNames[dayOfWeek];
+    };
+
     const loadHabitsAndCalculateGoals = async (date: string = selectedDate) => {
         try {
             const habits = await getHabits();
@@ -29,17 +36,23 @@ export default function HomeScreen() {
             const uniqueCategories = [...new Set(habits.map(habit => habit.group))].filter(Boolean);
             setAvailableCategories(uniqueCategories);
             
-            if (!habits.length) {
+            // Filtrar hábitos por el día seleccionado
+            const dayOfWeek = getDayFromDate(date);
+            const habitsForDay = habits.filter(habit => 
+                habit.taskDays && habit.taskDays.includes(dayOfWeek)
+            );
+            
+            if (!habitsForDay.length) {
                 setGoalsData({ totalHabits: 0, completedHabits: 0 });
                 return;
             }
             
-            const completed = habits.filter(habit => 
+            const completed = habitsForDay.filter(habit => 
                 habit.completed && habit.completed >= habit.goalTarget
             ).length;
             
             setGoalsData({
-                totalHabits: habits.length,
+                totalHabits: habitsForDay.length,
                 completedHabits: completed
             });
         } catch (error) {

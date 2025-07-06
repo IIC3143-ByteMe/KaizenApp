@@ -4,8 +4,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ReminderPickerProps {
-    reminders: string;
-    onRemindersChange: (reminders: string) => void;
+    reminders: string[];
+    onRemindersChange: (reminders: string[]) => void;
 }
 
 export default function ReminderPicker({ reminders, onRemindersChange }: ReminderPickerProps) {
@@ -15,10 +15,10 @@ export default function ReminderPicker({ reminders, onRemindersChange }: Reminde
     const [selectedTime, setSelectedTime] = useState(new Date());
     
     useEffect(() => {
-        if (reminders) {
-            setRemindersList(reminders.split(','));
+        if (reminders && Array.isArray(reminders)) {
+            setRemindersList(reminders);
         }
-    }, []);
+    }, [reminders]);
 
     const formatTimeString = (date: Date): string => {
         return date.toLocaleTimeString('es-ES', { 
@@ -66,14 +66,14 @@ export default function ReminderPicker({ reminders, onRemindersChange }: Reminde
         if (!remindersList.includes(timeString)) {
             const newList = [...remindersList, timeString].sort();
             setRemindersList(newList);
-            onRemindersChange(newList.join(','));
+            onRemindersChange(newList);
         }
     };
 
     const removeReminder = (timeString: string) => {
         const newList = remindersList.filter(r => r !== timeString);
         setRemindersList(newList);
-        onRemindersChange(newList.join(',') || '');
+        onRemindersChange(newList);
     };
 
     return (
