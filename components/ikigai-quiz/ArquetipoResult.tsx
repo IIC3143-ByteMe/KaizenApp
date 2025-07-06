@@ -10,12 +10,12 @@ import PrimaryButton from "@components/utils/PrimaryButton";
 import { ARQUETIPO_DATA } from "@components/utils/arquetipoData";
 
 interface Props {
-  arquetipo: "constante" | "explorador" | "social" | "reflexivo";
+  arquetype: "constante" | "explorador" | "social" | "reflexivo";
   onContinue: () => void;
 }
 
-export default function ArquetipoResult({ arquetipo, onContinue }: Props) {
-  const data = ARQUETIPO_DATA[arquetipo];
+export default function ArquetipoResult({ arquetype, onContinue }: Props) {
+  const data = ARQUETIPO_DATA[arquetype];
 
   return (
     <SafeAreaView style={styles.safeArea}>

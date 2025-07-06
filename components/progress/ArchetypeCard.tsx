@@ -5,21 +5,21 @@ import { getIkigai } from '@services/ikigaiStorage';
 import { ARQUETIPO_DATA } from '@components/utils/arquetipoData';
 
 export default function ArchetypeCard() {
-  const [arquetipo, setArquetipo] = useState<null | keyof typeof ARQUETIPO_DATA>(null);
+  const [arquetype, setArquetype] = useState<null | keyof typeof ARQUETIPO_DATA>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const stored = await getIkigai();
-      if (stored?.arquetipo) {
-        setArquetipo(stored.arquetipo);
+      if (stored?.arquetype) {
+        setArquetype(stored.arquetype);
       }
     };
     fetchData();
   }, []);
 
-  if (!arquetipo) return null;
+  if (!arquetype) return null;
 
-  const { title, phrase } = ARQUETIPO_DATA[arquetipo];
+  const { title, phrase } = ARQUETIPO_DATA[arquetype];
 
   return (
     <View style={styles.card}>
