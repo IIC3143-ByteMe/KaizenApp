@@ -6,12 +6,14 @@ import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage
 
 interface HabitCardListProps {
   selectedDate?: string;
+  selectedDayCode?: string;
   selectedFilter?: string;
   onHabitsUpdate?: () => void;
 }
 
 export default function HabitCardList({ 
     selectedDate, 
+    selectedDayCode,
     selectedFilter = 'all',
     onHabitsUpdate 
 }: HabitCardListProps) {
@@ -58,22 +60,20 @@ export default function HabitCardList({
     const filterHabits = () => {
         let filtered = habits;
         
-        // Filtrar por día si se proporciona selectedDate
-        if (selectedDate) {
-            const dayOfWeek = getDayFromDate(selectedDate);
+        if (selectedDayCode) {
             filtered = filtered.filter(habit => 
-                habit.taskDays && habit.taskDays.includes(dayOfWeek)
+                habit.taskDays && habit.taskDays.includes(selectedDayCode)
             );
+            console.log(`Filtrando por día: ${selectedDayCode}, encontrados: ${filtered.length}`);
         }
         
-        // Filtrar por categoría
         if (selectedFilter !== 'all') {
             filtered = filtered.filter(habit => habit.group === selectedFilter);
         }
         
         setFilteredHabits(filtered);
         
-        console.log(`Filtrado por fecha: ${selectedDate}, categoría: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
+        console.log(`Filtrado por día: ${selectedDayCode}, categoría: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
     };
 
     const onRefresh = async () => {

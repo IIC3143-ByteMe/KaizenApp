@@ -4,13 +4,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 interface DayItem {
   label: string;
   value: number;
+  dayCode: string;
   selected: boolean;
   date: Date;
   formattedDate: string;
 }
 
 interface WeekdaySelectorProps {
-  onDateSelected?: (date: string) => void;
+  onDateSelected?: (date: string, dayCode: string) => void;
 }
 
 export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps) {
@@ -18,6 +19,7 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
   
   useEffect(() => {
     const dayLabels = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const dayNameCodes = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -29,10 +31,12 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
       date.setDate(today.getDate() - i);
       
       const formattedDate = formatDate(date);
+      const dayOfWeek = date.getDay();
       
       lastSevenDays.push({
-        label: dayLabels[date.getDay()],
-        value: date.getDay(),
+        label: dayLabels[dayOfWeek],
+        value: dayOfWeek,
+        dayCode: dayNameCodes[dayOfWeek],
         date: date,
         formattedDate: formattedDate,
         selected: i === 0
@@ -42,7 +46,8 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
     setDays(lastSevenDays);
     
     if (onDateSelected) {
-      onDateSelected(formatDate(today));
+      const todayDayCode = dayNameCodes[today.getDay()];
+      onDateSelected(formatDate(today), todayDayCode);
     }
   }, []);
 
@@ -55,7 +60,7 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
 
   const handleDayPress = (index: number) => {
     const selectedDay = days[index];
-    console.log(`Día seleccionado: ${selectedDay.label} (fecha: ${selectedDay.formattedDate})`);
+    console.log(`Día seleccionado: ${selectedDay.label} (fecha: ${selectedDay.formattedDate}, código: ${selectedDay.dayCode})`);
     
     setDays(days.map((day, idx) => ({
       ...day,
@@ -63,7 +68,7 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
     })));
     
     if (onDateSelected) {
-      onDateSelected(selectedDay.formattedDate);
+      onDateSelected(selectedDay.formattedDate, selectedDay.dayCode);
     }
   };
 

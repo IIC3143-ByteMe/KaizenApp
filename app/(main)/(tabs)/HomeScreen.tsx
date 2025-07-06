@@ -13,6 +13,7 @@ export default function HomeScreen() {
     const [selectedDate, setSelectedDate] = useState<string>(
         new Date().toISOString().split('T')[0]
     );
+    const [selectedDayCode, setSelectedDayCode] = useState<string>('');
     const [selectedFilter, setSelectedFilter] = useState<string>('all');
     const [goalsData, setGoalsData] = useState({
         totalHabits: 0,
@@ -21,14 +22,7 @@ export default function HomeScreen() {
     const [availableCategories, setAvailableCategories] = useState<string[]>([]);
     const [allHabits, setAllHabits] = useState<Habit[]>([]);
 
-    const getDayFromDate = (dateString: string): string => {
-        const date = new Date(dateString);
-        const dayOfWeek = date.getDay();
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        return dayNames[dayOfWeek];
-    };
-
-    const loadHabitsAndCalculateGoals = async (date: string = selectedDate) => {
+    const loadHabitsAndCalculateGoals = async (date: string = selectedDate, dayCode: string = selectedDayCode) => {
         try {
             const habits = await getHabits();
             setAllHabits(habits);
@@ -36,10 +30,8 @@ export default function HomeScreen() {
             const uniqueCategories = [...new Set(habits.map(habit => habit.group))].filter(Boolean);
             setAvailableCategories(uniqueCategories);
             
-            // Filtrar hábitos por el día seleccionado
-            const dayOfWeek = getDayFromDate(date);
             const habitsForDay = habits.filter(habit => 
-                habit.taskDays && habit.taskDays.includes(dayOfWeek)
+                habit.taskDays && habit.taskDays.includes(dayCode)
             );
             
             if (!habitsForDay.length) {
@@ -62,14 +54,17 @@ export default function HomeScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            loadHabitsAndCalculateGoals();
+            if (selectedDayCode) {
+                loadHabitsAndCalculateGoals();
+            }
             return () => {};
-        }, [])
+        }, [selectedDayCode])
     );
 
-    const handleDateChange = (date: string) => {
+    const handleDateChange = (date: string, dayCode: string) => {
         setSelectedDate(date);
-        loadHabitsAndCalculateGoals(date);
+        setSelectedDayCode(dayCode);
+        loadHabitsAndCalculateGoals(date, dayCode);
     };
     
     const handleFilterChange = (filter: string) => {
@@ -99,6 +94,7 @@ export default function HomeScreen() {
                 </View>
                 <HabitCardList 
                     selectedDate={selectedDate}
+                    selectedDayCode={selectedDayCode}
                     selectedFilter={selectedFilter}
                     onHabitsUpdate={handleHabitsUpdate}
                 />
