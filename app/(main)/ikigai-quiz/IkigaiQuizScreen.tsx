@@ -14,17 +14,17 @@ import { useRouter } from "expo-router";
 import { calculateArquetipo } from "@components/utils/calculateArquetipo";
 import { quizQuestions, Arquetipo } from "@components/ikigai-quiz/quizQuestions";
 
-type IkigaiKey = "amas" | "bueno" | "necesita" | "pagar";
+type IkigaiKey = "you_love" | "good_at" | "world_needs" | "is_profitable";
 
 export default function IkigaiQuizScreen() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [ikigaiData, setIkigaiData] = useState({
-    amas: "",
-    bueno: "",
-    necesita: "",
-    pagar: "",
+    you_love: "",
+    good_at: "",
+    world_needs: "",
+    is_profitable: "",
   });
   const [showArquetipo, setShowArquetipo] = useState<null | Arquetipo>(null);
   const [useGuide, setUseGuide] = useState<boolean>(false);
@@ -51,10 +51,10 @@ export default function IkigaiQuizScreen() {
   };
 
   const handleDescriptionSubmit = async () => {
-    const arquetipo = calculateArquetipo(answers as Arquetipo[]);
+    const arquetype = calculateArquetipo(answers as Arquetipo[]);
 
     try {
-      await saveIkigai({ ...ikigaiData, arquetipo });
+      await saveIkigai({ ...ikigaiData, arquetype });
       await setQuizDone();
       router.replace("/(main)/(tabs)/HomeScreen");
     } catch (error) {
@@ -63,9 +63,10 @@ export default function IkigaiQuizScreen() {
   };
 
   const handleGuidedSubmit = async () => {
-    const arquetipo = calculateArquetipo(answers as Arquetipo[]);
+    const arquetype = calculateArquetipo(answers as Arquetipo[]);
+    
     try {
-      await saveIkigai({ ...ikigaiData, arquetipo });
+      await saveIkigai({ ...ikigaiData, arquetype });
       await setQuizDone();
       router.replace("/(main)/(tabs)/HomeScreen");
     } catch (error) {
@@ -92,7 +93,7 @@ export default function IkigaiQuizScreen() {
       )}
 
       {showArquetipo && step === quizQuestions.length + 1 && (
-        <ArquetipoResult arquetipo={showArquetipo} onContinue={() => setStep(step + 1)} />
+        <ArquetipoResult arquetype={showArquetipo} onContinue={() => setStep(step + 1)} />
       )}
 
       {step === quizQuestions.length + 2 && (
