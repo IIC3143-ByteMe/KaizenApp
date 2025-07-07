@@ -62,6 +62,17 @@ export const saveHabitToBackend = async (habit: Omit<Habit, 'id' | 'completed' |
 };
 
 export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedWithBackend'>) => {
+    let habitWithGoalType = { ...habit };
+    
+    if (!habitWithGoalType.goalType) {
+        if (habitWithGoalType.goalTarget === 1) {
+            habitWithGoalType.goalType = 'Check';
+        } else if (habitWithGoalType.goalTarget >= 2 && habitWithGoalType.goalTarget <= 5) {
+            habitWithGoalType.goalType = 'Sum';
+        } else {
+            habitWithGoalType.goalType = 'Slide';
+        }
+    }
     
     try {
         const existingHabits = await getHabits();
@@ -71,7 +82,7 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
         let backendIkigaiCategory: string | null = null;
 
         try {
-            const backendResponse = await saveHabitToBackend(habit);
+            const backendResponse = await saveHabitToBackend(habitWithGoalType);
             syncedWithBackend = true;
             backendId = backendResponse._id;
             backendIkigaiCategory = backendResponse.ikigai_category || null;
@@ -82,7 +93,7 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
         
         const localId = Date.now().toString();
         const newHabit: Habit = {
-            ...habit,
+            ...habitWithGoalType,
             id: backendId || localId,
             completed: 0,
             syncedWithBackend,

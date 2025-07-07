@@ -51,7 +51,6 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
       onDateSelected(formatDate(today), todayDayCode);
     }
     
-    // Preload data for all 7 days
     const allDates = lastSevenDays.map(day => day.formattedDate);
     preloadCompletionsForDateRange(allDates).catch(err => 
       console.error('Error preloading completions:', err)

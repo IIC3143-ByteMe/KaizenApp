@@ -18,7 +18,6 @@ interface JournalingModalProps {
   date: string;
 }
 
-// Daily reflection questions
 const journalPrompts = [
   "¿Cómo te sientes hoy?",
   "¿Qué te ha hecho sentir agradecido hoy?",
@@ -30,25 +29,19 @@ const journalPrompts = [
 export default function JournalingModal({ visible, onClose, date }: JournalingModalProps) {
   const [journalEntry, setJournalEntry] = useState('');
   
-  // Pick a random prompt each time the modal opens
   const randomPrompt = journalPrompts[Math.floor(Math.random() * journalPrompts.length)];
   
   const handleSave = () => {
-    // For now, just mock saving the entry
     console.log('Guardando entrada de journal:', {
       date,
       entry: journalEntry,
       prompt: randomPrompt
     });
     
-    // In a real implementation, you would save this to your backend
-    
-    // Reset the input and close the modal
     setJournalEntry('');
     onClose();
   };
   
-  // Format the date to a more readable format
   const formattedDate = new Date(date).toLocaleDateString('es-ES', {
     weekday: 'long',
     year: 'numeric',

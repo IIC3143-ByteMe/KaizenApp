@@ -43,7 +43,6 @@ export default function HomeScreen() {
                 return;
             }
             
-            // Get the completions for the specific date
             const dailyCompletions = await getDailyCompletions(date);
             if (dailyCompletions) {
                 const completedCount = dailyCompletions.completions.filter(
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        position: 'relative', // Asegura que el FAB se posicione correctamente
+        position: 'relative',
     },
     headerContainer: {
     },
