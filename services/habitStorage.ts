@@ -41,13 +41,7 @@ export const saveHabitToBackend = async (habit: Omit<Habit, 'id' | 'completed' |
             reminders: habit.reminders,
         };
 
-        console.log('🔄 Enviando hábito al backend:', backendHabit);
-        console.log(habit);
-        
         const response = await api.post('/habits/', backendHabit);
-
-        console.log('✅ Hábito guardado en el backend:', response.data);
-        
         return response.data;
     } catch (error: any) {
         console.error('❌ ERROR en saveHabitToBackend:', error);
@@ -98,7 +92,6 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
         const updatedHabits = [...existingHabits, newHabit];
         
         await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
-        console.log('✅ Hábito guardado localmente:', newHabit);
         return newHabit;
     } catch (error: any) {
         console.error('❌ ERROR en saveHabit:', error);
