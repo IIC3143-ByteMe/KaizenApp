@@ -3,11 +3,13 @@ import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { HabitProgressProps } from './HabitProgress';
 
+const FIXED_COLOR = "#5D7AF8";
+
 export default function CheckProgress({ 
   id,
   progress, 
   goalTarget, 
-  color, 
+  color,
   onProgressChange,
   isCompact = false
 }: HabitProgressProps) {
@@ -24,14 +26,14 @@ export default function CheckProgress({
       style={[
         styles.container, 
         isCompact ? styles.compactContainer : {},
-        isCompleted ? { backgroundColor: color } : styles.uncheckedContainer,
-        isCompleted ? {} : { borderColor: color }
+        isCompleted ? { backgroundColor: FIXED_COLOR } : styles.uncheckedContainer,
+        isCompleted ? {} : { borderColor: FIXED_COLOR }
       ]} 
       onPress={handleToggle}
       activeOpacity={0.7}
     >
       {isCompleted ? (
-        <Ionicons name="checkmark" size={isCompact ? 16 : 24} color="#fff" />
+        <Ionicons name="checkmark" size={isCompact ? 16 : 20} color="#fff" />
       ) : (
         <View style={styles.emptyCheck} />
       )}
@@ -49,10 +51,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   compactContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
   },
   uncheckedContainer: {
     backgroundColor: 'transparent',

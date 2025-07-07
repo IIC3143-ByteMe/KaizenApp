@@ -1,89 +1,188 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, PanResponder, Animated, Vibration } from 'react-native';
 import { HabitProgressProps } from './HabitProgress';
+
+const FIXED_COLOR = "#5D7AF8";
 
 export default function SlideProgress({ 
   id,
   progress, 
   goalTarget, 
-  color, 
+  color,
   onProgressChange,
   isCompact = false
 }: HabitProgressProps) {
   const [localProgress, setLocalProgress] = useState(progress);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [lastProgressSent, setLastProgressSent] = useState(progress);
   const progressPercentage = Math.min(100, (localProgress / goalTarget) * 100);
+  const animatedWidth = useRef(new Animated.Value(progressPercentage)).current;
+  const containerWidthRef = useRef(200);
+  const trackRef = useRef<View>(null);
   
   useEffect(() => {
-    setLocalProgress(progress);
-  }, [progress]);
-  
-  const updateProgressWithDelay = (newValue: number) => {
-    if (onProgressChange && !isUpdating) {
-      setIsUpdating(true);
+    if (progress !== localProgress) {
+      setLocalProgress(progress);
+      setLastProgressSent(progress);
       
-      setTimeout(() => {
-        onProgressChange(newValue);
-        setIsUpdating(false);
-      }, 500);
+      Animated.spring(animatedWidth, {
+        toValue: Math.min(100, (progress / goalTarget) * 100),
+        useNativeDriver: false,
+        friction: 8,
+        tension: 40
+      }).start();
+    }
+  }, [progress, goalTarget]);
+
+  
+  const getProgressFromPosition = (positionX: number, width: number) => {
+    const boundedX = Math.max(0, Math.min(positionX, width));
+    const percentage = boundedX / width;
+    return Math.round(percentage * goalTarget);
+  };
+  
+  const updateProgressUI = (newProgress: number) => {
+    if (newProgress !== localProgress) {
+      setLocalProgress(newProgress);
+      Animated.spring(animatedWidth, {
+        toValue: Math.min(100, (newProgress / goalTarget) * 100),
+        useNativeDriver: false,
+        friction: 8,
+        tension: 40
+      }).start();
     }
   };
   
-  const handleSliderPress = (event: any, containerWidth: number) => {
-    const { locationX } = event.nativeEvent;
-    const percentage = Math.min(Math.max(locationX / containerWidth, 0), 1);
-    const newProgress = Math.round(percentage * goalTarget);
-    
-    setLocalProgress(newProgress);
-    updateProgressWithDelay(newProgress);
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        if (trackRef.current) {
+          trackRef.current.measure((x, y, width, height, pageX, pageY) => {
+            const touchX = evt.nativeEvent.pageX - pageX;
+            const newProgress = getProgressFromPosition(touchX, width);
+            
+            updateProgressUI(newProgress);
+          });
+        }
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        if (trackRef.current) {
+          trackRef.current.measure((x, y, width, height, pageX, pageY) => {
+            const touchX = evt.nativeEvent.pageX - pageX;
+            const newProgress = getProgressFromPosition(touchX, width);
+            
+            updateProgressUI(newProgress);
+          });
+        }
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (trackRef.current) {
+          trackRef.current.measure((x, y, width, height, pageX, pageY) => {
+            const touchX = evt.nativeEvent.pageX - pageX;
+            const finalProgress = getProgressFromPosition(touchX, width);
+            
+            updateProgressUI(finalProgress);
+            
+            if (onProgressChange) {
+              onProgressChange(finalProgress);
+            }
+          });
+        }
+      }
+    })
+  ).current;
+  
+  const handleSliderPress = (event: any) => {
+    if (trackRef.current) {
+      trackRef.current.measure((x, y, width, height, pageX, pageY) => {
+        const touchX = event.nativeEvent.pageX - pageX;
+        const newProgress = getProgressFromPosition(touchX, width);
+        
+        updateProgressUI(newProgress);
+        
+        if (onProgressChange) {
+          onProgressChange(newProgress);
+        }
+      });
+    }
   };
   
   if (isCompact) {
     return (
-      <View style={styles.compactContainer}>
-        <View style={styles.progressBarContainer}>
+      <View 
+        style={styles.compactContainer} 
+        onLayout={(e) => {
+          containerWidthRef.current = e.nativeEvent.layout.width;
+        }}
+      >
+        <TouchableOpacity 
+          activeOpacity={0.7}
+          style={styles.fullWidthTouchable}
+          onPress={(e) => {
+            handleSliderPress(e);
+          }}
+        >
           <View 
-            style={[
-              styles.progressBar, 
-              { width: `${progressPercentage}%`, backgroundColor: color }
-            ]} 
-          />
-        </View>
-        <Text style={styles.progressText}>
-          {localProgress}/{goalTarget}
-        </Text>
+            style={styles.progressBarContainer}
+            ref={trackRef}
+            {...panResponder.panHandlers}
+          >
+            <Animated.View 
+              style={[
+                styles.progressBar, 
+                { 
+                  width: animatedWidth.interpolate({
+                    inputRange: [0, 100],
+                    outputRange: ['0%', '100%']
+                  }), 
+                  backgroundColor: FIXED_COLOR 
+                }
+              ]} 
+            />
+          </View>
+          <Text style={styles.progressText}>
+            {localProgress}/{goalTarget}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
   
   return (
-    <View style={styles.container}>
+    <View 
+      style={styles.container}
+      onLayout={(e) => {
+        containerWidthRef.current = e.nativeEvent.layout.width - 32;
+      }}
+    >
       <Text style={styles.label}>Progreso: {localProgress}/{goalTarget}</Text>
       
       <TouchableOpacity 
+        activeOpacity={0.7}
         style={styles.sliderContainer}
-        activeOpacity={1}
         onPress={(e) => {
-          handleSliderPress(e, 280);
+          handleSliderPress(e);
         }}
       >
-        <View style={styles.sliderTrack}>
-          <View 
+        <View 
+          style={styles.sliderTrack}
+          ref={trackRef}
+          {...panResponder.panHandlers}
+        >
+          <Animated.View 
             style={[
               styles.sliderFill, 
-              { width: `${progressPercentage}%`, backgroundColor: color }
+              { 
+                width: animatedWidth.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: ['0%', '100%']
+                }), 
+                backgroundColor: FIXED_COLOR 
+              }
             ]} 
           />
         </View>
-        
-        <View 
-          style={[
-            styles.sliderThumb, 
-            { left: `${progressPercentage}%`, backgroundColor: color },
-            progressPercentage === 0 && { left: 0 },
-            progressPercentage === 100 && { right: 0 }
-          ]} 
-        />
       </TouchableOpacity>
       
       <View style={styles.markersContainer}>
@@ -103,21 +202,26 @@ const styles = StyleSheet.create({
   compactContainer: {
     width: '100%',
   },
+  fullWidthTouchable: {
+    width: '100%',
+    minHeight: 40,
+  },
   progressBarContainer: {
-    height: 6,
+    height: 12,
     backgroundColor: '#F0F0F0',
-    borderRadius: 3,
+    borderRadius: 6,
     marginBottom: 4,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 6,
   },
   progressText: {
     fontSize: 12,
     color: '#666',
     textAlign: 'right',
+    marginTop: 4,
   },
   label: {
     fontSize: 16,
@@ -126,19 +230,19 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   sliderContainer: {
-    height: 40,
+    height: 50,
     justifyContent: 'center',
     width: '100%',
   },
   sliderTrack: {
-    height: 12,
+    height: 14,
     backgroundColor: '#F0F0F0',
-    borderRadius: 6,
+    borderRadius: 7,
     overflow: 'hidden',
   },
   sliderFill: {
     height: '100%',
-    borderRadius: 6,
+    borderRadius: 7,
   },
   sliderThumb: {
     position: 'absolute',

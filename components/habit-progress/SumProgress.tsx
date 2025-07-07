@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { HabitProgressProps } from './HabitProgress';
 
+const FIXED_COLOR = "#5D7AF8";
+
 export default function SumProgress({ 
   id,
   progress, 
   goalTarget, 
-  color, 
+  color,
   onProgressChange,
   isCompact = false
 }: HabitProgressProps) {
@@ -55,16 +57,19 @@ export default function SumProgress({
   if (isCompact) {
     return (
       <View style={styles.compactContainer}>
-        <View style={[styles.progressCircle, { borderColor: color }]}>
-          <Text style={[styles.progressText, { color }]}>{localProgress}/{goalTarget}</Text>
+        <View style={[styles.progressCircle, { borderColor: FIXED_COLOR }]}>
+          <Text style={[styles.progressText, { color: FIXED_COLOR }]}>{localProgress}/{goalTarget}</Text>
         </View>
-        {!isUpdating && (
+        {!isUpdating && localProgress < goalTarget && (
           <TouchableOpacity 
-            style={[styles.incrementButton, { backgroundColor: color }]} 
+            style={[
+              styles.incrementButton, 
+              { backgroundColor: FIXED_COLOR }
+            ]} 
             onPress={handleIncrement}
             disabled={localProgress >= goalTarget}
           >
-            <Ionicons name="add" size={18} color="#fff" />
+            <Ionicons name="add" size={16} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -73,13 +78,18 @@ export default function SumProgress({
   
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={[styles.button, { backgroundColor: color }]} 
-        onPress={handleDecrement}
-        disabled={localProgress <= 0 || isUpdating}
-      >
-        <Ionicons name="remove" size={24} color="#fff" />
-      </TouchableOpacity>
+      {localProgress > 0 && (
+        <TouchableOpacity 
+          style={[
+            styles.button, 
+            { backgroundColor: FIXED_COLOR }
+          ]} 
+          onPress={handleDecrement}
+          disabled={isUpdating}
+        >
+          <Ionicons name="remove" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
       
       <View style={styles.progressContainer}>
         <Text style={styles.progressValue}>{localProgress}</Text>
@@ -87,13 +97,18 @@ export default function SumProgress({
         <Text style={styles.goalValue}>{goalTarget}</Text>
       </View>
       
-      <TouchableOpacity 
-        style={[styles.button, { backgroundColor: color }]} 
-        onPress={handleIncrement}
-        disabled={localProgress >= goalTarget || isUpdating}
-      >
-        <Ionicons name="add" size={24} color="#fff" />
-      </TouchableOpacity>
+      {localProgress < goalTarget && (
+        <TouchableOpacity 
+          style={[
+            styles.button, 
+            { backgroundColor: FIXED_COLOR }
+          ]} 
+          onPress={handleIncrement}
+          disabled={isUpdating}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -108,18 +123,19 @@ const styles = StyleSheet.create({
   compactContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   progressCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 28,
+    borderRadius: 14,
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 4,
   },
   progressText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   button: {
@@ -131,9 +147,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#94A9FF',
   },
   incrementButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -156,4 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#666',
   },
+  disabledButton: {
+    opacity: 0.5,
+  }
 });

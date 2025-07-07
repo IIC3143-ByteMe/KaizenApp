@@ -107,7 +107,19 @@ export default function HabitCard({
                             goalType={habitGoalType}
                             progress={completed}
                             goalTarget={goalTarget}
-                            color={color}
+                            color={"#5D7AF8"}
+                            onProgressChange={handleProgressChange}
+                            isCompact={true}
+                        />
+                    </View>
+                ) : habitGoalType === 'Sum' ? (
+                    <View style={styles.sumContainer}>
+                        <HabitProgressSelector
+                            id={id}
+                            goalType={habitGoalType}
+                            progress={completed}
+                            goalTarget={goalTarget}
+                            color={"#5D7AF8"}
                             onProgressChange={handleProgressChange}
                             isCompact={true}
                         />
@@ -119,7 +131,7 @@ export default function HabitCard({
                             goalType={habitGoalType}
                             progress={completed}
                             goalTarget={goalTarget}
-                            color={color}
+                            color={"#5D7AF8"}
                             onProgressChange={handleProgressChange}
                             isCompact={true}
                         />
@@ -174,7 +186,16 @@ const styles = StyleSheet.create({
     checkContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        marginTop: 4,
+        alignItems: 'center',
+        marginLeft: 'auto',
+        paddingLeft: 8,
+    },
+    sumContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginLeft: 'auto',
+        paddingLeft: 8,
     },
     progressBarContainer: {
         height: 6,
