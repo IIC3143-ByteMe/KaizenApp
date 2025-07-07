@@ -31,7 +31,6 @@ export interface DailyCompletions {
 
 const DAILY_COMPLETIONS_STORAGE_KEY_PREFIX = 'daily_completions_';
 
-// Helper function to get storage key for a specific date
 const getStorageKeyForDate = (date: string): string => {
   return `${DAILY_COMPLETIONS_STORAGE_KEY_PREFIX}${date}`;
 };
@@ -39,7 +38,6 @@ const getStorageKeyForDate = (date: string): string => {
 
 export const fetchDailyCompletionsFromBackend = async (targetDate?: string): Promise<DailyCompletions> => {
   try {
-    // If no date is provided, use today's date
     let date = targetDate;
     if (!date) {
       const now = new Date();
@@ -56,20 +54,17 @@ export const fetchDailyCompletionsFromBackend = async (targetDate?: string): Pro
 
     console.log(`✅ Obtenidos daily completions del backend para ${date}: ${JSON.stringify(daily_completions)}`);
     
-    // Store with date-specific key
     const storageKey = getStorageKeyForDate(date);
     await AsyncStorage.setItem(storageKey, JSON.stringify(daily_completions));
     
     return daily_completions;
   } catch (error) {
-    console.error('❌ Error al obtener daily completions del backend:', error);
     throw error;
   }
 };
 
 export const getDailyCompletions = async (targetDate?: string): Promise<DailyCompletions | null> => {
   try {
-    // If no date is provided, use today's date
     let date = targetDate;
     if (!date) {
       const now = new Date();
@@ -82,13 +77,11 @@ export const getDailyCompletions = async (targetDate?: string): Promise<DailyCom
     const storedData = await AsyncStorage.getItem(storageKey);
     
     if (!storedData) {
-      // If no data for this date, fetch from backend
       return await fetchDailyCompletionsFromBackend(date);
     }
     
     return JSON.parse(storedData);
   } catch (error) {
-    console.error(`❌ Error al obtener daily completions del almacenamiento para fecha ${targetDate || 'hoy'}:`, error);
     return null;
   }
 };
@@ -99,7 +92,6 @@ export const updateHabitCompletion = async (
   targetDate?: string
 ): Promise<DailyCompletions | null> => {
   try {
-    // If no date is provided, use today's date
     let date = targetDate;
     if (!date) {
       const now = new Date();
@@ -108,7 +100,6 @@ export const updateHabitCompletion = async (
       date = localDate.toISOString().split('T')[0];
     }
     
-    // Get completions for the specific date
     let dailyCompletions = await getDailyCompletions(date);
     
     if (!dailyCompletions) {
@@ -132,7 +123,6 @@ export const updateHabitCompletion = async (
       await api.patch('/daily-completions/update-progress', payload);
       console.log('✅ Progreso actualizado en el backend');
       
-      // Get fresh data from backend for this specific date
       const updatedCompletions = await fetchDailyCompletionsFromBackend(date);
       return updatedCompletions;
     } catch (error) {
@@ -147,7 +137,6 @@ export const updateHabitCompletion = async (
         return dailyCompletions;
       }
       
-      // Update local data if backend update fails
       dailyCompletions.completions[habitIndex].progress = progress;
       
       const isCompleted = progress >= dailyCompletions.completions[habitIndex].goal.target;
@@ -172,7 +161,6 @@ export const updateHabitCompletion = async (
       dailyCompletions.day_completed = totalCompletions > 0 && 
         completedCount === totalCompletions;
       
-      // Save to date-specific storage key
       const storageKey = getStorageKeyForDate(date);
       await AsyncStorage.setItem(
         storageKey, 
@@ -182,7 +170,6 @@ export const updateHabitCompletion = async (
       return dailyCompletions;
     }
   } catch (error) {
-    console.error('❌ Error al actualizar completion del hábito:', error);
     return null;
   }
 };
@@ -196,7 +183,6 @@ export const getHabitCompletion = async (
   completed: boolean;
 } | null> => {
   try {
-    // If no date is provided, use today's date
     let date = targetDate;
     if (!date) {
       const now = new Date();
@@ -225,39 +211,31 @@ export const getHabitCompletion = async (
       completed: habitCompletion.completed || false
     };
   } catch (error) {
-    console.error(`❌ Error al obtener completion del hábito para fecha ${targetDate || 'hoy'}:`, error);
     return null;
   }
 };
 
-// Function to preload completions for multiple days
 export const preloadCompletionsForDateRange = async (dates: string[]): Promise<void> => {
   try {
     console.log(`🔄 Preloading completions for ${dates.length} days...`);
     
-    // Create an array of promises to fetch all dates in parallel
     const fetchPromises = dates.map(date => {
       return getDailyCompletions(date)
         .then(completions => {
           if (!completions) {
-            // If not in storage, fetch from backend
             return fetchDailyCompletionsFromBackend(date);
           }
           return completions;
         })
         .catch(error => {
-          console.error(`❌ Error preloading completions for date ${date}:`, error);
           return null;
         });
     });
     
-    // Wait for all fetches to complete
     await Promise.all(fetchPromises);
     
     console.log('✅ Preloaded completions for all dates');
-  } catch (error) {
-    console.error('❌ Error preloading completions:', error);
-  }
+  } catch (error) {}
 };
 
 export const clearAllDailyCompletions = async (): Promise<void> => {

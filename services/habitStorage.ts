@@ -62,7 +62,6 @@ export const saveHabitToBackend = async (habit: Omit<Habit, 'id' | 'completed' |
 };
 
 export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedWithBackend'>) => {
-    // Determinar automáticamente el goalType basado en el goalTarget si no se proporciona
     let habitWithGoalType = { ...habit };
     
     if (!habitWithGoalType.goalType) {

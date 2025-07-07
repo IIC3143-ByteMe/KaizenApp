@@ -95,5 +95,4 @@ const styles = StyleSheet.create({
   }
 });
 
-// Exportamos la lista de colores para reutilizarla
 export { COLORS };
