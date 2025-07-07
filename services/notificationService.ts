@@ -97,6 +97,12 @@ export async function cancelHabitReminders(ids: string[]) {
 
 export async function cancelAllReminders() {
   await Notifications.cancelAllScheduledNotificationsAsync();
+  const habits = await fetchHabitsFromBackend();
+  await Promise.all(
+    habits.map(h =>
+      updateHabit({ ...h, reminderIds: [] })
+    )
+  );
 }
 
 export async function fetchNotificationsFromBackend() {
