@@ -19,7 +19,7 @@ import { incrementStreak } from '@services/streakService';
 
 
 export default function HabitDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, date: selectedDate } = useLocalSearchParams();
   const router = useRouter();
   const [habit, setHabit] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ export default function HabitDetailScreen() {
 
   useEffect(() => {
     loadHabit();
-  }, [id]);
+  }, [id, selectedDate]);
 
   const loadHabit = async () => {
     if (!id || typeof id !== 'string') return;
@@ -39,8 +39,9 @@ export default function HabitDetailScreen() {
       if (habitData) {
         setHabit(habitData);
         
-        // Get progress from daily completions
-        const completionData = await getHabitCompletion(id);
+        // Get progress from daily completions for the selected date or today
+        const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+        const completionData = await getHabitCompletion(id, dateParam);
         if (completionData) {
           setProgress(completionData.progress);
         } else {
@@ -66,14 +67,21 @@ export default function HabitDetailScreen() {
     try {
       const previousProgress = progress;
       
+      // Update UI immediately for better user experience
       setProgress(newValue);
       
-      const updatedCompletions = await updateHabitCompletion(id, newValue);
+      // Use the selected date or default to today
+      const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+      
+      // Update on backend with the specific date
+      const updatedCompletions = await updateHabitCompletion(id, newValue, dateParam);
       
       if (updatedCompletions) {
         const habitCompletion = updatedCompletions.completions.find(c => c.habit_id === id);
         
-        if (habitCompletion && 
+        // Only increment streak for today's completion (not for past days)
+        if (!selectedDate && 
+            habitCompletion && 
             habitCompletion.completed && 
             previousProgress < habit.goalTarget && 
             newValue >= habit.goalTarget) {
@@ -85,7 +93,9 @@ export default function HabitDetailScreen() {
       console.error('Error updating progress:', error);
       Alert.alert('Error', 'No se pudo actualizar el progreso');
       
-      const completionData = await getHabitCompletion(id);
+      // Revert to previous progress value on error
+      const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+      const completionData = await getHabitCompletion(id, dateParam);
       if (completionData) {
         setProgress(completionData.progress);
       } else {

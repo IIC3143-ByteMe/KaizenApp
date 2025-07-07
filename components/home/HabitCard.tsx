@@ -12,6 +12,7 @@ type Props = {
     color: string;
     goalTarget: number;
     goalUnit: string;
+    date?: string;
     onPress?: () => void;
 };
 
@@ -22,7 +23,8 @@ export default function HabitCard({
     icon, 
     color, 
     goalTarget, 
-    goalUnit, 
+    goalUnit,
+    date,
     onPress 
 }: Props) {
     const unitData = UNITS.find(unit => unit.id === goalUnit);
@@ -32,7 +34,7 @@ export default function HabitCard({
     useEffect(() => {
         const loadCompletion = async () => {
             try {
-                const completionData = await getHabitCompletion(id);
+                const completionData = await getHabitCompletion(id, date);
                 if (completionData) {
                     setCompleted(completionData.progress);
                 } else {
@@ -47,7 +49,7 @@ export default function HabitCard({
         };
         
         loadCompletion();
-    }, [id]);
+    }, [id, date]);
     
     const goalValueNum = goalTarget || 1;
     const progress = Math.min(100, Math.max(0, (completed / goalValueNum) * 100));
