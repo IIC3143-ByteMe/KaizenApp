@@ -18,6 +18,7 @@ export interface Habit {
   ikigai_category?: string | null;
   completed?: number;
   syncedWithBackend?: boolean;
+  reminderIds?: string[];
 }
 
 const HABITS_STORAGE_KEY = 'kaizen_habits';
@@ -87,6 +88,7 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
             completed: 0,
             syncedWithBackend,
             ikigai_category: backendIkigaiCategory || null,
+            reminderIds: [],
         };
                 
         const updatedHabits = [...existingHabits, newHabit];
