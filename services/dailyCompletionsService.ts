@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api';
 
 interface Goal {
-  period: string;  // daily, weekly, monthly
+  period: string;
   type: string;
   target: number;
   unit: string;
@@ -36,7 +36,11 @@ export const fetchDailyCompletionsFromBackend = async (): Promise<DailyCompletio
   try {
     console.log('🔄 Obteniendo daily completions del backend...');
 
-    const date = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const localDate = new Date(now.getTime() - (offset * 60 * 1000));
+    const date = localDate.toISOString().split('T')[0];
+    console.log(`📅 Fecha para obtener daily completions: ${date}`);
     const response = await api.post('/daily-completions/', date);
     
     const daily_completions: DailyCompletions = response.data;
