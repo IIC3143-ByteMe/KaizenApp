@@ -8,6 +8,8 @@ import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 import HabitCardList from '@components/home/HabitCardList';
 import { getHabits, Habit } from '@services/habitStorage';
 import { getDailyCompletions } from '@services/dailyCompletionsService';
+import FloatingActionButton from '@components/utils/FloatingActionButton';
+import JournalingModal from '@components/home/JournalingModal';
 
 
 export default function HomeScreen() {
@@ -22,6 +24,7 @@ export default function HomeScreen() {
     });
     const [availableCategories, setAvailableCategories] = useState<string[]>([]);
     const [allHabits, setAllHabits] = useState<Habit[]>([]);
+    const [isJournalingModalVisible, setIsJournalingModalVisible] = useState(false);
 
     const loadHabitsAndCalculateGoals = async (date: string = selectedDate, dayCode: string = selectedDayCode) => {
         try {
@@ -90,6 +93,14 @@ export default function HomeScreen() {
         loadHabitsAndCalculateGoals();
     };
 
+    const handleOpenJournalingModal = () => {
+        setIsJournalingModalVisible(true);
+    };
+
+    const handleCloseJournalingModal = () => {
+        setIsJournalingModalVisible(false);
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
@@ -112,6 +123,18 @@ export default function HomeScreen() {
                     selectedFilter={selectedFilter}
                     onHabitsUpdate={handleHabitsUpdate}
                 />
+                
+                <FloatingActionButton 
+                    icon="journal" 
+                    onPress={handleOpenJournalingModal}
+                    label="Diario"
+                />
+                
+                <JournalingModal 
+                    visible={isJournalingModalVisible}
+                    onClose={handleCloseJournalingModal}
+                    date={selectedDate}
+                />
             </View>
         </SafeAreaView>
     );
@@ -125,6 +148,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        position: 'relative', // Asegura que el FAB se posicione correctamente
     },
     headerContainer: {
     },
