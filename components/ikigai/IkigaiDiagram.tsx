@@ -30,6 +30,13 @@ const circlePositions: Record<Circle["position"], ViewStyle> = {
   bottomRight: { position: 'absolute', bottom: 150, right: 30 },
 };
 
+const TRANSLATIONS: Record<string, string> = {
+  passion:   "Pasión",
+  mission:   "Misión",
+  vocation:  "Vocación",
+  profession:"Profesión",
+};
+
 export default function IkigaiDiagram({ refreshKey }: Props) {
   const [circles, setCircles] = useState<Circle[]>([]);
   const [allHabits, setAllHabits] = useState<Habit[]>([]);
@@ -69,7 +76,12 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
       }
 
       const habits = await getHabits();
-      setAllHabits(habits);
+      const normalized = habits.map(h => ({
+        ...h,
+        ikigai_category: h.ikigai_category?.toLowerCase() ?? null
+      }));
+      setAllHabits(normalized);
+      console.log("Habits loaded:", normalized);
     };
 
     loadData();
@@ -80,8 +92,13 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
   };
 
   const filteredHabits = allHabits.filter(
-    (h) => h.ikigaiCategory === selectedIkigai
+    (h) => h.ikigai_category === selectedIkigai
   );
+
+  const selectedLabel =
+    selectedIkigai != null
+      ? TRANSLATIONS[selectedIkigai] ?? selectedIkigai
+      : "";
 
   return (
     <View style={styles.container}>
@@ -133,7 +150,7 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Hábitos de {selectedIkigai}</Text>
+            <Text style={styles.modalTitle}>Hábitos de {selectedLabel}</Text>
             <FlatList
               data={filteredHabits}
               keyExtractor={(item) => item.id}
