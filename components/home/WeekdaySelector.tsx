@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { preloadCompletionsForDateRange } from '@services/dailyCompletionsService';
 
 interface DayItem {
   label: string;
@@ -49,6 +50,12 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
       const todayDayCode = dayNameCodes[today.getDay()];
       onDateSelected(formatDate(today), todayDayCode);
     }
+    
+    // Preload data for all 7 days
+    const allDates = lastSevenDays.map(day => day.formattedDate);
+    preloadCompletionsForDateRange(allDates).catch(err => 
+      console.error('Error preloading completions:', err)
+    );
   }, []);
 
   const formatDate = (date: Date): string => {

@@ -161,7 +161,8 @@ export default function HabitCardList({
                     color={item.color}
                     goalTarget={item.goalTarget}
                     goalUnit={item.goalUnit}
-                    onPress={() => router.push(`/(main)/habit/${item.id}`)}
+                    date={selectedDate}
+                    onPress={() => router.push(`/(main)/habit/${item.id}?date=${selectedDate || ''}`)}
                 />
             )}
             contentContainerStyle={styles.listContainer}

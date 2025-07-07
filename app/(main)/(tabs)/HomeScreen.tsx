@@ -40,7 +40,8 @@ export default function HomeScreen() {
                 return;
             }
             
-            const dailyCompletions = await getDailyCompletions();
+            // Get the completions for the specific date
+            const dailyCompletions = await getDailyCompletions(date);
             if (dailyCompletions) {
                 const completedCount = dailyCompletions.completions.filter(
                     completion => completion.completed
