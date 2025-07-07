@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Modal, 
     View, 
@@ -20,14 +20,7 @@ import ReminderPicker from './ReminderPicker';
 import HabitTypeSelector from './HabitTypeSelector';
 import AddButton from './AddButton';
 import { saveHabit } from '@services/habitStorage';
-
-export interface HabitTemplate {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    color: string;
-}
+import { HabitTemplate } from '@services/templateStorage';
 
 interface AddHabitModalProps {
     visible: boolean;
@@ -49,6 +42,18 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [taskDays, setTaskDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
     const [reminders, setReminders] = useState<string[]>(['08:00']);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        setTitle(selectedTemplate?.title || '');
+        setDescription(selectedTemplate?.description || '');
+        setIcon(selectedTemplate?.icon || '');
+        setColor(selectedTemplate?.color || '#A4B1FF');
+        setGroup(selectedTemplate?.group || 'General');
+        setTaskDays(selectedTemplate?.task_days || []);
+        setReminders(selectedTemplate?.reminders || []);
+        setGoalTarget(0);
+        setGoalUnit('');
+    }, [selectedTemplate, visible]);
 
     const handleAddHabit = async () => {
         try {
