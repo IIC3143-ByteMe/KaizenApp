@@ -19,8 +19,9 @@ import WeekdayPicker from './WeekdayPicker';
 import ReminderPicker from './ReminderPicker';
 import HabitTypeSelector from './HabitTypeSelector';
 import AddButton from './AddButton';
-import { saveHabit } from '@services/habitStorage';
+import { saveHabit, updateHabit } from '@services/habitStorage';
 import { HabitTemplate } from '@services/templateStorage';
+import { scheduleHabitReminders } from '@services/notificationService';
 
 interface AddHabitModalProps {
     visible: boolean;
@@ -82,6 +83,11 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 return;
             }
 
+            if (!reminders.length || !taskDays.length) {
+                Alert.alert('Error', 'Selecciona días y horarios de recordatorio');
+                return;
+            }
+
             setIsSubmitting(true);
             
             const habitData = {
@@ -99,8 +105,17 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                 reminders
             };
             
-            await saveHabit(habitData);
+            const created = await saveHabit(habitData);
             console.log('✅ Hábito guardado exitosamente');
+
+            const reminderIds = await scheduleHabitReminders({
+                id: created.id,
+                title: created.title,
+                time: created.reminders,
+                daysOfWeek: created.taskDays
+            });
+
+            await updateHabit({ ...created, reminderIds });
 
             if (onHabitAdded) {
                 onHabitAdded();
