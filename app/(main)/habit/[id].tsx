@@ -11,14 +11,15 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
-import { getHabitById, updateHabitProgress, deleteHabit } from '@services/habitStorage';
+import { getHabitById, deleteHabit } from '@services/habitStorage';
+import { getHabitCompletion, updateHabitCompletion } from '@services/dailyCompletionsService';
 import { UNITS } from '@components/add-habit/GoalSelector';
 import CircularProgress from '@components/utils/CircularProgress';
 import { incrementStreak } from '@services/streakService';
 
 
 export default function HabitDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, date: selectedDate } = useLocalSearchParams();
   const router = useRouter();
   const [habit, setHabit] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,7 @@ export default function HabitDetailScreen() {
 
   useEffect(() => {
     loadHabit();
-  }, [id]);
+  }, [id, selectedDate]);
 
   const loadHabit = async () => {
     if (!id || typeof id !== 'string') return;
@@ -37,7 +38,15 @@ export default function HabitDetailScreen() {
       
       if (habitData) {
         setHabit(habitData);
-        setProgress(habitData.completed || 0);
+        
+        // Get progress from daily completions for the selected date or today
+        const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+        const completionData = await getHabitCompletion(id, dateParam);
+        if (completionData) {
+          setProgress(completionData.progress);
+        } else {
+          setProgress(0);
+        }
       } else {
         Alert.alert('Error', 'No se encontró el hábito');
         router.back();
@@ -56,18 +65,42 @@ export default function HabitDetailScreen() {
     if (newValue < 0) newValue = 0;
     
     try {
+      const previousProgress = progress;
+      
+      // Update UI immediately for better user experience
       setProgress(newValue);
-      const updatedHabit = await updateHabitProgress(id, newValue);
-      if (updatedHabit && newValue >= updatedHabit.goalTarget && progress < updatedHabit.goalTarget) {
-        await incrementStreak();
-      }
-      if (updatedHabit) {
-        setHabit(updatedHabit);
+      
+      // Use the selected date or default to today
+      const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+      
+      // Update on backend with the specific date
+      const updatedCompletions = await updateHabitCompletion(id, newValue, dateParam);
+      
+      if (updatedCompletions) {
+        const habitCompletion = updatedCompletions.completions.find(c => c.habit_id === id);
+        
+        // Only increment streak for today's completion (not for past days)
+        if (!selectedDate && 
+            habitCompletion && 
+            habitCompletion.completed && 
+            previousProgress < habit.goalTarget && 
+            newValue >= habit.goalTarget) {
+          console.log('🎯 ¡Hábito completado! Incrementando racha...');
+          await incrementStreak();
+        }
       }
     } catch (error) {
       console.error('Error updating progress:', error);
       Alert.alert('Error', 'No se pudo actualizar el progreso');
-      setProgress(habit.completed || 0);
+      
+      // Revert to previous progress value on error
+      const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
+      const completionData = await getHabitCompletion(id, dateParam);
+      if (completionData) {
+        setProgress(completionData.progress);
+      } else {
+        setProgress(0);
+      }
     }
   };
 
@@ -146,7 +179,7 @@ export default function HabitDetailScreen() {
           <View style={styles.detailSection}>
             <Text style={styles.detailLabel}>Recordatorios</Text>
             <View style={styles.remindersContainer}>
-              {habit.reminders.map((time, index) => (
+              {habit.reminders.map((time: string, index: number) => (
                 <View key={index} style={styles.reminderBadge}>
                   <Ionicons name="alarm-outline" size={14} color="#555" />
                   <Text style={styles.reminderText}>{time}</Text>
@@ -173,8 +206,8 @@ export default function HabitDetailScreen() {
 
   const unitData = UNITS.find(unit => unit.id === habit.goalUnit);
   const unitLabel = unitData?.label || habit.goalUnit;
-  const progressPercentage = Math.min(100, (progress / parseInt(habit.goalValue)) * 100);
-  const isCompleted = progress >= parseInt(habit.goalValue);
+  const progressPercentage = Math.min(100, (progress / habit.goalTarget) * 100);
+  const isCompleted = progress >= habit.goalTarget;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -206,7 +239,7 @@ export default function HabitDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Meta diaria</Text>
           <Text style={styles.goalText}>
-            {habit.goalValue} {unitLabel}
+            {habit.goalTarget} {unitLabel}
           </Text>
           
           <View style={styles.progressSection}>
@@ -217,7 +250,7 @@ export default function HabitDetailScreen() {
               strokeWidth={15}
             >
               <Text style={styles.progressValue}>{progress}</Text>
-              <Text style={styles.progressLabel}>de {habit.goalValue}</Text>
+              <Text style={styles.progressLabel}>de {habit.goalTarget}</Text>
             </CircularProgress>
             
             <View style={styles.controlsContainer}>

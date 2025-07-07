@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, Text, View, ActivityIndicator, RefreshControl, Sc
 import { useRouter, useFocusEffect } from 'expo-router';
 import HabitCard from '@components/home/HabitCard';
 import { getHabits, Habit, fetchHabitsFromBackend } from '@services/habitStorage';
+import { fetchDailyCompletionsFromBackend } from '@services/dailyCompletionsService';
 
 interface HabitCardListProps {
   selectedDate?: string;
@@ -81,14 +82,18 @@ export default function HabitCardList({
             setRefreshing(true);
             console.log('🔄 Actualizando hábitos desde el backend...');
             
-            const backendHabits = await fetchHabitsFromBackend();
-            setHabits(backendHabits);
+            await Promise.all([
+                fetchHabitsFromBackend().then(backendHabits => {
+                    setHabits(backendHabits);
+                }),
+                fetchDailyCompletionsFromBackend()
+            ]);
             
             if (onHabitsUpdate) {
                 onHabitsUpdate();
             }
             
-            console.log('✅ Hábitos actualizados correctamente');
+            console.log('✅ Hábitos y completions actualizados correctamente');
         } catch (error) {
             console.error('❌ Error al actualizar hábitos:', error);
         } finally {
@@ -104,7 +109,6 @@ export default function HabitCardList({
         );
     }
 
-    // Si no hay hábitos después de aplicar el filtro
     if (filteredHabits.length === 0) {
         return (
             <ScrollView 
@@ -157,8 +161,8 @@ export default function HabitCardList({
                     color={item.color}
                     goalTarget={item.goalTarget}
                     goalUnit={item.goalUnit}
-                    completed={item.completed || 0}
-                    onPress={() => router.push(`/(main)/habit/${item.id}`)}
+                    date={selectedDate}
+                    onPress={() => router.push(`/(main)/habit/${item.id}?date=${selectedDate || ''}`)}
                 />
             )}
             contentContainerStyle={styles.listContainer}

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { UNITS } from '@components/add-habit/GoalSelector';
+import { getHabitCompletion } from '@services/dailyCompletionsService';
 
 type Props = {
     id: string;
@@ -11,21 +12,44 @@ type Props = {
     color: string;
     goalTarget: number;
     goalUnit: string;
-    completed?: number;
+    date?: string;
     onPress?: () => void;
 };
 
 export default function HabitCard({ 
+    id,
     title, 
     description, 
     icon, 
     color, 
     goalTarget, 
-    goalUnit, 
-    completed = 0, 
+    goalUnit,
+    date,
     onPress 
 }: Props) {
     const unitData = UNITS.find(unit => unit.id === goalUnit);
+    const [completed, setCompleted] = useState(0);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        const loadCompletion = async () => {
+            try {
+                const completionData = await getHabitCompletion(id, date);
+                if (completionData) {
+                    setCompleted(completionData.progress);
+                } else {
+                    setCompleted(0);
+                }
+            } catch (error) {
+                console.error('Error loading habit completion:', error);
+                setCompleted(0);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadCompletion();
+    }, [id, date]);
     
     const goalValueNum = goalTarget || 1;
     const progress = Math.min(100, Math.max(0, (completed / goalValueNum) * 100));
