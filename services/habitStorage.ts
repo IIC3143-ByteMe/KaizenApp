@@ -15,7 +15,7 @@ export interface Habit {
   goalUnit: string;
   taskDays: string[];
   reminders: string[];
-  ikigaiCategory?: string | null;
+  ikigai_category?: string | null;
   completed?: number;
   syncedWithBackend?: boolean;
 }
@@ -40,8 +40,13 @@ export const saveHabitToBackend = async (habit: Omit<Habit, 'id' | 'completed' |
             task_days: habit.taskDays,
             reminders: habit.reminders,
         };
+
+        console.log('🔄 Enviando hábito al backend:', backendHabit);
+        console.log(habit);
         
         const response = await api.post('/habits/', backendHabit);
+
+        console.log('✅ Hábito guardado en el backend:', response.data);
         
         return response.data;
     } catch (error: any) {
@@ -69,11 +74,13 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
         
         let syncedWithBackend = false;
         let backendId: string | null = null;
+        let backendIkigaiCategory: string | null = null;
 
         try {
             const backendResponse = await saveHabitToBackend(habit);
             syncedWithBackend = true;
             backendId = backendResponse._id;
+            backendIkigaiCategory = backendResponse.ikigai_category || null;
         } catch (error) {
             console.warn('⚠️ No se pudo guardar en el backend:', error);
             console.log('⚙️ Continuando con guardado local solamente');
@@ -84,13 +91,14 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
             ...habit,
             id: backendId || localId,
             completed: 0,
-            syncedWithBackend
+            syncedWithBackend,
+            ikigai_category: backendIkigaiCategory || null,
         };
                 
         const updatedHabits = [...existingHabits, newHabit];
         
         await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
-        
+        console.log('✅ Hábito guardado localmente:', newHabit);
         return newHabit;
     } catch (error: any) {
         console.error('❌ ERROR en saveHabit:', error);
@@ -214,7 +222,7 @@ export const fetchHabitsFromBackend = async (): Promise<Habit[]> => {
       goalUnit: backendHabit.goal.unit,
       taskDays: Array.isArray(backendHabit.task_days) ? backendHabit.task_days : [],
       reminders: Array.isArray(backendHabit.reminders) ? backendHabit.reminders : [],
-      ikigaiCategory: backendHabit.ikigai_category,
+      ikigai_category: backendHabit.ikigai_category,
       completed: backendHabit.progress ?? 0,
       syncedWithBackend: true,
     }));
