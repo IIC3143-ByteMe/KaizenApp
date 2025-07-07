@@ -7,6 +7,7 @@ import WeekdaySelector from '@components/home/WeekdaySelector';
 import HabitTypeCarousel from '@components/utils/HabitTypeCarousel';
 import HabitCardList from '@components/home/HabitCardList';
 import { getHabits, Habit } from '@services/habitStorage';
+import { getDailyCompletions } from '@services/dailyCompletionsService';
 
 
 export default function HomeScreen() {
@@ -39,14 +40,26 @@ export default function HomeScreen() {
                 return;
             }
             
-            const completed = habitsForDay.filter(habit => 
-                habit.completed && habit.completed >= habit.goalTarget
-            ).length;
-            
-            setGoalsData({
-                totalHabits: habitsForDay.length,
-                completedHabits: completed
-            });
+            const dailyCompletions = await getDailyCompletions();
+            if (dailyCompletions) {
+                const completedCount = dailyCompletions.completions.filter(
+                    completion => completion.completed
+                ).length;
+                
+                setGoalsData({
+                    totalHabits: habitsForDay.length,
+                    completedHabits: completedCount
+                });
+                
+                if (completedCount === habitsForDay.length && completedCount > 0) {
+                    console.log('🎯 Todos los hábitos del día completados!');
+                }
+            } else {
+                setGoalsData({
+                    totalHabits: habitsForDay.length,
+                    completedHabits: 0
+                });
+            }
         } catch (error) {
             console.error('Error loading habits and calculating goals:', error);
         }
