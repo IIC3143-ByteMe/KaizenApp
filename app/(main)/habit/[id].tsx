@@ -16,6 +16,7 @@ import { getHabitCompletion, updateHabitCompletion } from '@services/dailyComple
 import { UNITS } from '@components/add-habit/GoalSelector';
 import CircularProgress from '@components/utils/CircularProgress';
 import { incrementStreak } from '@services/streakService';
+import HabitProgressSelector from '@components/habit-progress/HabitProgressSelector';
 
 
 export default function HabitDetailScreen() {
@@ -39,7 +40,6 @@ export default function HabitDetailScreen() {
       if (habitData) {
         setHabit(habitData);
         
-        // Get progress from daily completions for the selected date or today
         const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
         const completionData = await getHabitCompletion(id, dateParam);
         if (completionData) {
@@ -67,19 +67,15 @@ export default function HabitDetailScreen() {
     try {
       const previousProgress = progress;
       
-      // Update UI immediately for better user experience
       setProgress(newValue);
       
-      // Use the selected date or default to today
       const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
       
-      // Update on backend with the specific date
       const updatedCompletions = await updateHabitCompletion(id, newValue, dateParam);
       
       if (updatedCompletions) {
         const habitCompletion = updatedCompletions.completions.find(c => c.habit_id === id);
         
-        // Only increment streak for today's completion (not for past days)
         if (!selectedDate && 
             habitCompletion && 
             habitCompletion.completed && 
@@ -93,7 +89,6 @@ export default function HabitDetailScreen() {
       console.error('Error updating progress:', error);
       Alert.alert('Error', 'No se pudo actualizar el progreso');
       
-      // Revert to previous progress value on error
       const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
       const completionData = await getHabitCompletion(id, dateParam);
       if (completionData) {
@@ -243,31 +238,30 @@ export default function HabitDetailScreen() {
           </Text>
           
           <View style={styles.progressSection}>
-            <CircularProgress 
-              percentage={progressPercentage} 
-              color={habit.color} 
-              size={180}
-              strokeWidth={15}
-            >
-              <Text style={styles.progressValue}>{progress}</Text>
-              <Text style={styles.progressLabel}>de {habit.goalTarget}</Text>
-            </CircularProgress>
-            
-            <View style={styles.controlsContainer}>
-              <TouchableOpacity 
-                style={styles.controlButton}
-                onPress={() => handleUpdateProgress(progress - 1)}
-              >
-                <Ionicons name="remove" size={24} color="#666" />
-              </TouchableOpacity>
+            {(() => {
+              let goalType = habit.goalType;
+              if (!goalType) {
+                if (habit.goalTarget === 1) {
+                  goalType = 'Check';
+                } else if (habit.goalTarget >= 2 && habit.goalTarget <= 5) {
+                  goalType = 'Sum';
+                } else {
+                  goalType = 'Slide';
+                }
+              }
               
-              <TouchableOpacity 
-                style={[styles.controlButton, styles.incrementButton]}
-                onPress={() => handleUpdateProgress(progress + 1)}
-              >
-                <Ionicons name="add" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
+              return (
+                <HabitProgressSelector
+                  id={habit.id}
+                  goalType={goalType}
+                  progress={progress}
+                  goalTarget={habit.goalTarget}
+                  color={habit.color}
+                  onProgressChange={handleUpdateProgress}
+                  isCompact={false}
+                />
+              );
+            })()}
           </View>
         </View>
         

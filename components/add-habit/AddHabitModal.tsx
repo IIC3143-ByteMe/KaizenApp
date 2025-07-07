@@ -55,6 +55,16 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
         setGoalUnit('');
     }, [selectedTemplate, visible]);
 
+    useEffect(() => {
+        if (goalTarget === 1) {
+            setGoalType('Check');
+        } else if (goalTarget >= 2 && goalTarget <= 5) {
+            setGoalType('Sum');
+        } else if (goalTarget > 5) {
+            setGoalType('Slide');
+        }
+    }, [goalTarget]);
+
     const handleAddHabit = async () => {
         try {
             if (!title.trim()) {

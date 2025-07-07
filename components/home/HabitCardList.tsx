@@ -35,13 +35,6 @@ export default function HabitCardList({
         filterHabits();
     }, [habits, selectedFilter, selectedDate]);
 
-    const getDayFromDate = (dateString: string): string => {
-        const date = new Date(dateString);
-        const dayOfWeek = date.getDay();
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        return dayNames[dayOfWeek];
-    };
-
     const loadHabits = async () => {
         try {
             setLoading(true);
@@ -161,6 +154,7 @@ export default function HabitCardList({
                     color={item.color}
                     goalTarget={item.goalTarget}
                     goalUnit={item.goalUnit}
+                    goalType={item.goalType}
                     date={selectedDate}
                     onPress={() => router.push(`/(main)/habit/${item.id}?date=${selectedDate || ''}`)}
                 />

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { UNITS } from '@components/add-habit/GoalSelector';
-import { getHabitCompletion } from '@services/dailyCompletionsService';
+import { getHabitCompletion, updateHabitCompletion } from '@services/dailyCompletionsService';
+import HabitProgressSelector from '@components/habit-progress/HabitProgressSelector';
 
 type Props = {
     id: string;
@@ -12,6 +13,7 @@ type Props = {
     color: string;
     goalTarget: number;
     goalUnit: string;
+    goalType?: string;
     date?: string;
     onPress?: () => void;
 };
@@ -24,12 +26,27 @@ export default function HabitCard({
     color, 
     goalTarget, 
     goalUnit,
+    goalType,
     date,
     onPress 
 }: Props) {
     const unitData = UNITS.find(unit => unit.id === goalUnit);
     const [completed, setCompleted] = useState(0);
     const [loading, setLoading] = useState(true);
+    
+    const determineGoalType = () => {
+        if (goalType) return goalType;
+        
+        if (goalTarget === 1) {
+            return 'Check';
+        } else if (goalTarget >= 2 && goalTarget <= 5) {
+            return 'Sum';
+        } else {
+            return 'Slide';
+        }
+    };
+    
+    const habitGoalType = determineGoalType();
     
     useEffect(() => {
         const loadCompletion = async () => {
@@ -51,6 +68,19 @@ export default function HabitCard({
         loadCompletion();
     }, [id, date]);
     
+    const handleProgressChange = async (newProgress: number) => {
+        try {
+            setCompleted(newProgress);
+            await updateHabitCompletion(id, newProgress, date);
+        } catch (error) {
+            console.error('Error updating habit completion:', error);
+            const completionData = await getHabitCompletion(id, date);
+            if (completionData) {
+                setCompleted(completionData.progress);
+            }
+        }
+    };
+    
     const goalValueNum = goalTarget || 1;
     const progress = Math.min(100, Math.max(0, (completed / goalValueNum) * 100));
     const isDone = completed >= goalValueNum;
@@ -70,20 +100,31 @@ export default function HabitCard({
                     <Text style={styles.description} numberOfLines={1}>{description}</Text>
                 </View>
                 
-                <View style={styles.progressContainer}>
-                    <View style={styles.progressBarContainer}>
-                        <View 
-                            style={[
-                                styles.progressBar, 
-                                { width: `${progress}%`, backgroundColor: color },
-                                isDone && styles.completedProgress
-                            ]} 
+                {habitGoalType === 'Check' ? (
+                    <View style={styles.checkContainer}>
+                        <HabitProgressSelector
+                            id={id}
+                            goalType={habitGoalType}
+                            progress={completed}
+                            goalTarget={goalTarget}
+                            color={color}
+                            onProgressChange={handleProgressChange}
+                            isCompact={true}
                         />
                     </View>
-                    <Text style={styles.progressText}>
-                        {completed}/{goalTarget} {unitData?.label || goalUnit}
-                    </Text>
-                </View>
+                ) : (
+                    <View style={styles.progressContainer}>
+                        <HabitProgressSelector
+                            id={id}
+                            goalType={habitGoalType}
+                            progress={completed}
+                            goalTarget={goalTarget}
+                            color={color}
+                            onProgressChange={handleProgressChange}
+                            isCompact={true}
+                        />
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -128,6 +169,11 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     progressContainer: {
+        marginTop: 4,
+    },
+    checkContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
         marginTop: 4,
     },
     progressBarContainer: {
