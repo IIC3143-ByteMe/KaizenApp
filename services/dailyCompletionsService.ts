@@ -259,3 +259,25 @@ export const preloadCompletionsForDateRange = async (dates: string[]): Promise<v
     console.error('❌ Error preloading completions:', error);
   }
 };
+
+export const clearAllDailyCompletions = async (): Promise<void> => {
+  try {
+    console.log('🔄 Limpiando todos los daily completions...');
+    
+    const allKeys = await AsyncStorage.getAllKeys();
+    
+    const completionsKeys = allKeys.filter(key => 
+      key.startsWith(DAILY_COMPLETIONS_STORAGE_KEY_PREFIX)
+    );
+    
+    if (completionsKeys.length > 0) {
+      await AsyncStorage.multiRemove(completionsKeys);
+      console.log(`✅ Eliminados ${completionsKeys.length} registros de daily completions`);
+    } else {
+      console.log('ℹ️ No se encontraron datos de daily completions para eliminar');
+    }
+  } catch (error) {
+    console.error('❌ Error al limpiar daily completions:', error);
+    throw error;
+  }
+};
