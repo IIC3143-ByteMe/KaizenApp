@@ -259,3 +259,30 @@ export const clearAllDailyCompletions = async (): Promise<void> => {
     throw error;
   }
 };
+
+export const getMonthCompletions = async (month: string): Promise<DailyCompletions[]> => {
+  try {
+    console.log(`🔍 Obteniendo completions para el mes ${month}...`);
+    
+    const response = await api.get<DailyCompletions[]>(`/month-completions/${month}`);
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`✅ Obtenidas ${response.data.length} completions para el mes ${month}`);
+      
+      for (const completion of response.data) {
+        if (completion.date) {
+          const storageKey = getStorageKeyForDate(completion.date);
+          await AsyncStorage.setItem(storageKey, JSON.stringify(completion));
+        }
+      }
+      
+      return response.data;
+    }
+    
+    console.log(`⚠️ No se encontraron completions para el mes ${month}`);
+    return [];
+  } catch (error) {
+    console.error(`❌ Error al obtener completions para el mes ${month}:`, error);
+    return [];
+  }
+};

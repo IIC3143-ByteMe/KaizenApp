@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Modal, 
   View, 
@@ -8,9 +8,16 @@ import {
   TouchableOpacity, 
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { 
+  getJournalQuestion, 
+  getJournalEntryForDate, 
+  saveJournalEntry 
+} from '@services/journalService';
+import { formatDateToSpanish } from '@utils/dateUtils';
 
 interface JournalingModalProps {
   visible: boolean;
@@ -18,36 +25,78 @@ interface JournalingModalProps {
   date: string;
 }
 
-const journalPrompts = [
-  "¿Cómo te sientes hoy?",
-  "¿Qué te ha hecho sentir agradecido hoy?",
-  "¿Qué obstáculo has superado hoy?",
-  "¿Qué has aprendido de ti mismo hoy?",
-  "¿Qué esperas del día de mañana?"
-];
+interface JournalEntry {
+  date: string;
+  entry: string;
+}
 
 export default function JournalingModal({ visible, onClose, date }: JournalingModalProps) {
   const [journalEntry, setJournalEntry] = useState('');
+  const [question, setQuestion] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [savingEntry, setSavingEntry] = useState(false);
+  const [existingEntry, setExistingEntry] = useState<JournalEntry | null>(null);
+  const [error, setError] = useState('');
   
-  const randomPrompt = journalPrompts[Math.floor(Math.random() * journalPrompts.length)];
+  const apiDateFormat = date;
   
-  const handleSave = () => {
-    console.log('Guardando entrada de journal:', {
-      date,
-      entry: journalEntry,
-      prompt: randomPrompt
-    });
+  useEffect(() => {
+    if (visible) {
+      loadJournalData();
+    }
+  }, [visible, date]);
+  
+  const loadJournalData = async () => {
+    setLoading(true);
+    setError('');
     
-    setJournalEntry('');
-    onClose();
+    try {
+      const questionText = await getJournalQuestion();
+      setQuestion(questionText);
+      
+      const existingEntryData = await getJournalEntryForDate(apiDateFormat);
+      
+      if (existingEntryData) {
+        setExistingEntry(existingEntryData);
+        setJournalEntry(existingEntryData.entry);
+      } else {
+        setExistingEntry(null);
+        setJournalEntry('');
+      }
+    } catch (error) {
+      console.error('Error al cargar datos del journal:', error);
+      setError('No se pudieron cargar los datos. Intenta de nuevo más tarde.');
+      setQuestion('¿Cómo te sientes hoy?');
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const formattedDate = new Date(date).toLocaleDateString('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const handleSave = async () => {
+    if (!journalEntry.trim()) return;
+    
+    try {
+      setSavingEntry(true);
+      
+      const success = await saveJournalEntry(journalEntry);
+      
+      if (success) {
+        console.log('✅ Entrada de journal guardada exitosamente');
+        onClose();
+      } else {
+        setError('No se pudo guardar tu entrada. Intenta de nuevo.');
+      }
+    } catch (error) {
+      console.error('❌ Error al guardar la entrada de journal:', error);
+      setError('No se pudo guardar tu entrada. Intenta de nuevo.');
+    } finally {
+      setSavingEntry(false);
+    }
+  };
+  
+  const formattedDate = formatDateToSpanish(new Date());
+  
+  if (!visible) return null;
   
   return (
     <Modal
@@ -70,37 +119,74 @@ export default function JournalingModal({ visible, onClose, date }: JournalingMo
           
           <Text style={styles.dateText}>{formattedDate}</Text>
           
-          <View style={styles.promptContainer}>
-            <Text style={styles.promptText}>{randomPrompt}</Text>
-          </View>
-          
-          <ScrollView style={styles.inputContainer}>
-            <TextInput
-              style={styles.journalInput}
-              multiline
-              placeholder="Escribe aquí tus pensamientos..."
-              value={journalEntry}
-              onChangeText={setJournalEntry}
-              textAlignVertical="top"
-            />
-          </ScrollView>
-          
-          <View style={styles.buttonRow}>
-            <TouchableOpacity 
-              style={[styles.button, styles.cancelButton]} 
-              onPress={onClose}
-            >
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSave}
-              disabled={!journalEntry.trim()}
-            >
-              <Text style={styles.saveButtonText}>Guardar</Text>
-            </TouchableOpacity>
-          </View>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#94A9FF" />
+              <Text style={styles.loadingText}>Cargando...</Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.promptContainer}>
+                <Text style={styles.promptText}>{question}</Text>
+              </View>
+              
+              {error ? (
+                <Text style={styles.errorText}>{error}</Text>
+              ) : null}
+              
+              <ScrollView style={styles.inputContainer}>
+                <TextInput
+                  style={styles.journalInput}
+                  multiline
+                  placeholder="Escribe aquí tus pensamientos..."
+                  value={journalEntry}
+                  onChangeText={setJournalEntry}
+                  textAlignVertical="top"
+                  editable={!savingEntry}
+                />
+              </ScrollView>
+              
+              <View style={styles.buttonRow}>
+                <TouchableOpacity 
+                  style={[styles.button, styles.cancelButton]} 
+                  onPress={onClose}
+                  disabled={savingEntry}
+                >
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                
+                {existingEntry ? (
+                  <TouchableOpacity 
+                    style={[
+                      styles.button, 
+                      styles.saveButton,
+                      journalEntry.trim() === existingEntry.entry.trim() && styles.disabledButton
+                    ]}
+                    onPress={handleSave}
+                    disabled={savingEntry || journalEntry.trim() === existingEntry.entry.trim()}
+                  >
+                    {savingEntry ? (
+                      <ActivityIndicator size="small" color="white" />
+                    ) : (
+                      <Text style={styles.saveButtonText}>Actualizar</Text>
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity 
+                    style={[styles.button, styles.saveButton, !journalEntry.trim() && styles.disabledButton]}
+                    onPress={handleSave}
+                    disabled={savingEntry || !journalEntry.trim()}
+                  >
+                    {savingEntry ? (
+                      <ActivityIndicator size="small" color="white" />
+                    ) : (
+                      <Text style={styles.saveButtonText}>Guardar</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -188,6 +274,9 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: '#94A9FF',
   },
+  disabledButton: {
+    opacity: 0.5,
+  },
   cancelButtonText: {
     color: '#666',
     fontWeight: 'bold',
@@ -196,4 +285,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    minHeight: 200,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorText: {
+    color: '#e74c3c',
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 14,
+  }
 });
