@@ -64,7 +64,6 @@ export default function HomeScreen() {
                 });
             }
         } catch (error) {
-            console.error('Error loading habits and calculating goals:', error);
         }
     };
 
