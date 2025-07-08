@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, FlatList, SafeAreaView } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
@@ -30,6 +30,16 @@ export default function GoalSelector({
     const [unitsModalVisible, setUnitsModalVisible] = useState(false);
     
     const selectedUnitData = UNITS.find(unit => unit.id === selectedUnit);
+
+    useEffect(() => {
+        console.log('GoalSelector - initialValue changed:', initialValue);
+        setGoalValue(initialValue?.toString() || '');
+    }, [initialValue]);
+
+    useEffect(() => {
+        console.log('GoalSelector - initialUnit changed:', initialUnit);
+        setSelectedUnit(initialUnit);
+    }, [initialUnit]);
 
     const handleValueChange = (value: string) => {
         if (/^\d*$/.test(value)) {

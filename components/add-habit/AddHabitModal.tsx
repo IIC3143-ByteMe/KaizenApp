@@ -35,13 +35,13 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
     const [description, setDescription] = useState(selectedTemplate?.description || '');
     const [icon, setIcon] = useState(selectedTemplate?.icon || '');
     const [color, setColor] = useState(selectedTemplate?.color || '#A4B1FF');
-    const [goalTarget, setGoalTarget] = useState<number>(0);
-    const [goalType, setGoalType] = useState('Count');
-    const [goalUnit, setGoalUnit] = useState('');
-    const [group, setGroup] = useState('Healthy');
-    const [habitType, setHabitType] = useState('Build');
-    const [taskDays, setTaskDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
-    const [reminders, setReminders] = useState<string[]>(['08:00']);
+    const [goalTarget, setGoalTarget] = useState<number>(selectedTemplate?.goal?.target || 0);
+    const [goalType, setGoalType] = useState(selectedTemplate?.goal?.type || 'Check');
+    const [goalUnit, setGoalUnit] = useState(selectedTemplate?.goal?.unit || '');
+    const [group, setGroup] = useState(selectedTemplate?.group || 'Healthy');
+    const [habitType, setHabitType] = useState(selectedTemplate?.type || 'Build');
+    const [taskDays, setTaskDays] = useState<string[]>(selectedTemplate?.task_days || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+    const [reminders, setReminders] = useState<string[]>(selectedTemplate?.reminders || ['08:00']);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -50,10 +50,19 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
         setIcon(selectedTemplate?.icon || '');
         setColor(selectedTemplate?.color || '#A4B1FF');
         setGroup(selectedTemplate?.group || 'General');
-        setTaskDays(selectedTemplate?.task_days || []);
-        setReminders(selectedTemplate?.reminders || []);
-        setGoalTarget(0);
-        setGoalUnit('');
+        setTaskDays(selectedTemplate?.task_days || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+        setReminders(selectedTemplate?.reminders || ['08:00']);
+        setHabitType(selectedTemplate?.type || 'Build');
+        
+        if (selectedTemplate?.goal) {
+            setGoalTarget(selectedTemplate.goal.target || 0);
+            setGoalUnit(selectedTemplate.goal.unit || '');
+            setGoalType(selectedTemplate.goal.type || 'Check');
+        } else {
+            setGoalTarget(0);
+            setGoalUnit('');
+            setGoalType('Check');
+        }
     }, [selectedTemplate, visible]);
 
     useEffect(() => {
@@ -177,6 +186,7 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
                         initialUnit={goalUnit}
                         onValueChange={setGoalTarget}
                         onUnitChange={setGoalUnit}
+                        key={`goal-${selectedTemplate?._id || 'new'}`}
                     />
                     
                     <WeekdayPicker 
