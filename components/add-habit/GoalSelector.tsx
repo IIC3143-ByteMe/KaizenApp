@@ -32,12 +32,10 @@ export default function GoalSelector({
     const selectedUnitData = UNITS.find(unit => unit.id === selectedUnit);
 
     useEffect(() => {
-        console.log('GoalSelector - initialValue changed:', initialValue);
         setGoalValue(initialValue?.toString() || '');
     }, [initialValue]);
 
     useEffect(() => {
-        console.log('GoalSelector - initialUnit changed:', initialUnit);
         setSelectedUnit(initialUnit);
     }, [initialUnit]);
 

@@ -24,6 +24,32 @@ export default function IkigaiEditModal({
   initialValues = { you_love: '', good_at: '', world_needs: '', is_profitable: '' }
 }: IkigaiEditModalProps) {
   const [descriptions, setDescriptions] = useState(initialValues);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadCurrentData = async () => {
+      if (visible) {
+        setIsLoading(true);
+        try {
+          const ikigai = await getIkigai();
+          if (ikigai) {
+            setDescriptions({
+              you_love: ikigai.you_love || '',
+              good_at: ikigai.good_at || '',
+              world_needs: ikigai.world_needs || '',
+              is_profitable: ikigai.is_profitable || ''
+            });
+          }
+        } catch (error) {
+          console.error('Error al cargar datos de ikigai:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadCurrentData();
+  }, [visible]);
 
   const handleChange = (field: keyof Descriptions, value: string) => {
     setDescriptions(prev => ({ ...prev, [field]: value }));
@@ -51,14 +77,9 @@ export default function IkigaiEditModal({
       onSave?.(descriptions);
       onClose();
     } catch (error) {
+      console.error("Error al guardar ikigai:", error);
     }
   };
-
-  useEffect(() => {
-    if (!visible) {
-      setDescriptions({ you_love: '', good_at: '', world_needs: '', is_profitable: '' });
-    }
-  }, [visible]);
 
   return (
     <Modal
@@ -77,38 +98,44 @@ export default function IkigaiEditModal({
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={styles.title}>Editar tus descripciones</Text>
 
-          <TextInput
-            placeholder="Lo que AMAS"
-            placeholderTextColor="#777"
-            style={styles.input}
-            value={descriptions.you_love}
-            onChangeText={(text) => handleChange('you_love', text)}
-          />
-          <TextInput
-            placeholder="En lo que eres BUENO"
-            placeholderTextColor="#777"
-            style={styles.input}
-            value={descriptions.good_at}
-            onChangeText={(text) => handleChange('good_at', text)}
-          />
-          <TextInput
-            placeholder="Lo que el mundo NECESITA"
-            placeholderTextColor="#777"
-            style={styles.input}
-            value={descriptions.world_needs}
-            onChangeText={(text) => handleChange('world_needs', text)}
-          />
-          <TextInput
-            placeholder="Por lo que te pueden PAGAR"
-            placeholderTextColor="#777"
-            style={styles.input}
-            value={descriptions.is_profitable}
-            onChangeText={(text) => handleChange('is_profitable', text)}
-          />
+          {isLoading ? (
+            <Text style={styles.loadingText}>Cargando datos...</Text>
+          ) : (
+            <>
+              <TextInput
+                placeholder="Lo que AMAS"
+                placeholderTextColor="#777"
+                style={styles.input}
+                value={descriptions.you_love}
+                onChangeText={(text) => handleChange('you_love', text)}
+              />
+              <TextInput
+                placeholder="En lo que eres BUENO"
+                placeholderTextColor="#777"
+                style={styles.input}
+                value={descriptions.good_at}
+                onChangeText={(text) => handleChange('good_at', text)}
+              />
+              <TextInput
+                placeholder="Lo que el mundo NECESITA"
+                placeholderTextColor="#777"
+                style={styles.input}
+                value={descriptions.world_needs}
+                onChangeText={(text) => handleChange('world_needs', text)}
+              />
+              <TextInput
+                placeholder="Por lo que te pueden PAGAR"
+                placeholderTextColor="#777"
+                style={styles.input}
+                value={descriptions.is_profitable}
+                onChangeText={(text) => handleChange('is_profitable', text)}
+              />
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveText}>Guardar</Text>
-          </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveText}>Guardar</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </ScrollView>
       </SafeAreaView>
     </Modal>
@@ -159,4 +186,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  loadingText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#555',
+    marginTop: 20,
+  }
 });
