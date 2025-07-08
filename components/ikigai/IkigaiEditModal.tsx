@@ -51,7 +51,6 @@ export default function IkigaiEditModal({
       onSave?.(descriptions);
       onClose();
     } catch (error) {
-      console.error("Error al guardar descripciones:", error);
     }
   };
 

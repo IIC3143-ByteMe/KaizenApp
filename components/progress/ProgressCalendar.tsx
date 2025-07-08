@@ -9,6 +9,7 @@ interface DayData {
   day: number;
   percentage: number;
   isCurrentMonth: boolean;
+  isFutureDate: boolean;
 }
 
 interface ProgressCalendarProps {
@@ -47,7 +48,6 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
             
             setMonthCompletions(completionMap);
         } catch (error) {
-            console.error('Error al cargar completions del mes:', error);
         } finally {
             setIsLoading(false);
         }
@@ -58,6 +58,8 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
         
         const firstDay = new Date(year, month - 1, 1);
         const lastDay = new Date(year, month, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         let firstDayOfWeek = firstDay.getDay() - 1;
         if (firstDayOfWeek < 0) firstDayOfWeek = 6;
@@ -75,22 +77,28 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
             const prevYear = month === 1 ? year - 1 : year;
             const date = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(prevMonthDay).padStart(2, '0')}`;
             
+            const dayDate = new Date(prevYear, prevMonth - 1, prevMonthDay);
+            
             currentWeek.push({
                 date,
                 day: prevMonthDay,
                 percentage: 0,
-                isCurrentMonth: false
+                isCurrentMonth: false,
+                isFutureDate: dayDate > today
             });
         }
         
         for (let day = 1; day <= daysInMonth; day++) {
             const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
+            const dayDate = new Date(year, month - 1, day);
+            
             currentWeek.push({
                 date,
                 day,
                 percentage: 0,
-                isCurrentMonth: true
+                isCurrentMonth: true,
+                isFutureDate: dayDate > today
             });
             
             if (currentWeek.length === 7 || day === daysInMonth) {
@@ -101,11 +109,14 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
                     for (let i = 1; currentWeek.length < 7; i++) {
                         const nextMonthDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                         
+                        const dayDate = new Date(nextYear, nextMonth - 1, i);
+                        
                         currentWeek.push({
                             date: nextMonthDate,
                             day: i,
                             percentage: 0,
-                            isCurrentMonth: false
+                            isCurrentMonth: false,
+                            isFutureDate: dayDate > today
                         });
                     }
                 }
@@ -119,7 +130,7 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
     };
     
     const handleDayPress = (day: DayData) => {
-        if (day.isCurrentMonth) {
+        if (day.isCurrentMonth && !day.isFutureDate) {
             setSelectedDay(day.date);
             if (onDaySelected) {
                 onDaySelected(day.date);
@@ -137,6 +148,12 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
         if (percentage >= 0.5) return '#FFC107';
         if (percentage >= 0.25) return '#FF9800';
         return '#FF5252';
+    };
+    
+    const getCircleBackgroundColor = (day: DayData) => {
+        if (!day.isCurrentMonth) return '#EEE';
+        if (day.isFutureDate) return '#F0F0F0';
+        return getCompletionColor(day.date);
     };
     
     const getMonthName = (monthStr: string) => {
@@ -193,23 +210,25 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
                             <TouchableOpacity
                                 key={dayIndex}
                                 onPress={() => handleDayPress(day)}
-                                disabled={!day.isCurrentMonth}
+                                disabled={!day.isCurrentMonth || day.isFutureDate}
                                 style={[
                                     styles.dayCircle,
                                     !day.isCurrentMonth && styles.otherMonthDay,
+                                    day.isFutureDate && styles.futureDay,
                                     selectedDay === day.date && styles.selectedDay
                                 ]}
                             >
                                 <View 
                                     style={[
                                         styles.circle,
-                                        { backgroundColor: day.isCurrentMonth ? getCompletionColor(day.date) : '#EEE' }
+                                        { backgroundColor: getCircleBackgroundColor(day) }
                                     ]}
                                 />
                                 <Text 
                                     style={[
                                         styles.dayNumber,
                                         !day.isCurrentMonth && styles.otherMonthDayText,
+                                        day.isFutureDate && styles.futureDayText,
                                         selectedDay === day.date && styles.selectedDayText
                                     ]}
                                 >
@@ -293,6 +312,14 @@ const styles = StyleSheet.create({
     },
     otherMonthDayText: {
         color: '#AAA',
+    },
+    futureDay: {
+        opacity: 0.5,
+        pointerEvents: 'none',
+    },
+    futureDayText: {
+        color: '#BBB',
+        fontStyle: 'italic',
     },
     selectedDay: {
         borderWidth: 2,

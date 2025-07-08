@@ -53,7 +53,6 @@ export default function HabitDetailScreen() {
         router.back();
       }
     } catch (error) {
-      console.error('Error loading habit:', error);
       Alert.alert('Error', 'No se pudo cargar el hábito');
     } finally {
       setLoading(false);
@@ -87,7 +86,6 @@ export default function HabitDetailScreen() {
         }
       }
     } catch (error) {
-      console.error('Error updating progress:', error);
       Alert.alert('Error', 'No se pudo actualizar el progreso');
       
       const dateParam = typeof selectedDate === 'string' ? selectedDate : undefined;
@@ -117,7 +115,6 @@ export default function HabitDetailScreen() {
                 router.back();
               }
             } catch (error) {
-              console.error('Error deleting habit:', error);
               Alert.alert('Error', 'No se pudo eliminar el hábito');
             }
           }

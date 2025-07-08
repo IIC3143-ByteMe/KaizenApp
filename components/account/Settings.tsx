@@ -27,11 +27,7 @@ export default function Settings() {
                             
                             router.replace("/(auth)/AuthScreen");
                         } catch (error) {
-                            console.error("Error al cerrar sesión:", error);
-                            Alert.alert(
-                                "Error", 
-                                "No se pudo cerrar sesión correctamente. Inténtalo de nuevo."
-                            );
+
                         } finally {
                             setIsLoggingOut(false);
                         }

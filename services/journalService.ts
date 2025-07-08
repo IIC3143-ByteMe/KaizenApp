@@ -14,7 +14,6 @@ export const getJournalQuestion = async (): Promise<string> => {
     const response = await api.get<JournalQuestion>('/journal/question');
     return response.data.question;
   } catch (error) {
-    console.error('❌ Error al obtener la pregunta del journal:', error);
     return '¿Cómo te sientes hoy?';
   }
 };
@@ -52,7 +51,6 @@ export const saveJournalEntry = async (entry: string, date?: string): Promise<bo
     console.log('✅ Entrada de journal guardada exitosamente');
     return true;
   } catch (error) {
-    console.error('❌ Error al guardar la entrada de journal:', error);
     return false;
   }
 };

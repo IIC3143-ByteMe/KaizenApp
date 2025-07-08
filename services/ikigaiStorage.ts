@@ -19,7 +19,6 @@ export const saveIkigai = async (ikigai: IkigaiData) => {
     await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(response.data));
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error al guardar Ikigai en backend:', error);
     throw error;
   }
 };
@@ -34,7 +33,6 @@ export const updateIkigai = async (ikigai: Partial<IkigaiData>) => {
     await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(response.data));
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error al actualizar Ikigai:', error);
     throw error;
   }
 };
@@ -52,7 +50,6 @@ export const fetchIkigaiFromBackend = async (): Promise<IkigaiData | null> => {
     await AsyncStorage.setItem(IKIGAI_KEY, JSON.stringify(ikigai));
     return ikigai;
   } catch (error) {
-    console.error('❌ Error al obtener Ikigai desde backend:', error);
     return null;
   }
 };
@@ -62,7 +59,6 @@ export const getIkigai = async (): Promise<IkigaiData | null> => {
     const stored = await AsyncStorage.getItem(IKIGAI_KEY);
     return stored ? JSON.parse(stored) : null;
   } catch (error) {
-    console.error('❌ Error al obtener Ikigai desde AsyncStorage:', error);
     return null;
   }
 };
@@ -84,7 +80,6 @@ export const clearIkigaiData = async (): Promise<void> => {
     ]);
     console.log("Datos de Ikigai eliminados");
   } catch (error) {
-    console.error("Error al eliminar datos de Ikigai:", error);
     throw error;
   }
 };

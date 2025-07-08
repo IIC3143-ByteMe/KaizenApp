@@ -22,7 +22,6 @@ export const clearAllUserData = async (): Promise<void> => {
 
     console.log('Todos los datos del usuario han sido eliminados');
   } catch (error) {
-    console.error('Error al limpiar datos del usuario:', error);
     throw error;
   }
 };
@@ -31,7 +30,6 @@ export const logout = async (): Promise<void> => {
   try {
     await clearAllUserData();
   } catch (error) {
-    console.error('Error durante el logout:', error);
     throw error;
   }
 };

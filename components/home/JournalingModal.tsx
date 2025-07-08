@@ -64,7 +64,6 @@ export default function JournalingModal({ visible, onClose, date }: JournalingMo
         setJournalEntry('');
       }
     } catch (error) {
-      console.error('Error al cargar datos del journal:', error);
       setError('No se pudieron cargar los datos. Intenta de nuevo más tarde.');
       setQuestion('¿Cómo te sientes hoy?');
     } finally {
@@ -87,7 +86,6 @@ export default function JournalingModal({ visible, onClose, date }: JournalingMo
         setError('No se pudo guardar tu entrada. Intenta de nuevo.');
       }
     } catch (error) {
-      console.error('❌ Error al guardar la entrada de journal:', error);
       setError('No se pudo guardar tu entrada. Intenta de nuevo.');
     } finally {
       setSavingEntry(false);

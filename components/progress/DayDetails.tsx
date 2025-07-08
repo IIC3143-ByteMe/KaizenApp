@@ -30,7 +30,6 @@ export default function DayDetails({ date, onDetailsLoaded }: DayDetailsProps) {
         const journalData = await getJournalEntryForDate(date);
         setJournalEntry(journalData ? journalData.entry : null);
       } catch (journalError) {
-        console.error('Error al cargar journal:', journalError);
         setJournalEntry(null);
       }
       
@@ -39,7 +38,6 @@ export default function DayDetails({ date, onDetailsLoaded }: DayDetailsProps) {
         onDetailsLoaded(hasData);
       }
     } catch (error) {
-      console.error('Error al cargar detalles del día:', error);
       setError('No se pudieron cargar los datos para el día seleccionado');
       
       if (onDetailsLoaded) {

@@ -24,7 +24,6 @@ export default function useStreak(refreshOnMount: boolean = true) {
       const currentStreak = await getStreakLocal();
       setStreak(currentStreak);
     } catch (error) {
-      console.error('Error loading streak:', error);
     } finally {
       setLoading(false);
     }

@@ -45,7 +45,6 @@ export default function HabitCardList({
                 onHabitsUpdate();
             }
         } catch (error) {
-            console.error('Error loading habits:', error);
         } finally {
             setLoading(false);
         }
@@ -88,7 +87,6 @@ export default function HabitCardList({
             
             console.log('✅ Hábitos y completions actualizados correctamente');
         } catch (error) {
-            console.error('❌ Error al actualizar hábitos:', error);
         } finally {
             setRefreshing(false);
         }

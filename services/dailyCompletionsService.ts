@@ -126,7 +126,6 @@ export const updateHabitCompletion = async (
       const updatedCompletions = await fetchDailyCompletionsFromBackend(date);
       return updatedCompletions;
     } catch (error) {
-      console.error(`❌ Error al actualizar progreso en el backend para fecha ${date}:`, error);
 
       const habitIndex = dailyCompletions.completions.findIndex(
         completion => completion.habit_id === habitId
@@ -255,7 +254,6 @@ export const clearAllDailyCompletions = async (): Promise<void> => {
       console.log('ℹ️ No se encontraron datos de daily completions para eliminar');
     }
   } catch (error) {
-    console.error('❌ Error al limpiar daily completions:', error);
     throw error;
   }
 };
@@ -282,7 +280,6 @@ export const getMonthCompletions = async (month: string): Promise<DailyCompletio
     console.log(`⚠️ No se encontraron completions para el mes ${month}`);
     return [];
   } catch (error) {
-    console.error(`❌ Error al obtener completions para el mes ${month}:`, error);
     return [];
   }
 };
