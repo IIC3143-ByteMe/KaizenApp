@@ -3,7 +3,6 @@ import { SafeAreaView, View, ScrollView, StyleSheet } from 'react-native';
 import ProgressHeader from '@components/progress/ProgressHeader';
 import ProgressCalendar from '@components/progress/ProgressCalendar';
 import StreakCard from '@components/progress/StreakCard';
-import ArchetypeCard from '@components/progress/ArchetypeCard';
 import DayDetails from '@components/progress/DayDetails';
 
 export default function ProgressScreen() {
@@ -25,6 +24,7 @@ export default function ProgressScreen() {
             <View style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollContent}>
                     <ProgressHeader />
+                    <StreakCard />
                     <ProgressCalendar onDaySelected={handleDaySelected} />
                     
                     {selectedDate && showDayDetails && (
@@ -34,10 +34,7 @@ export default function ProgressScreen() {
                                 onDetailsLoaded={handleDetailsLoaded}
                             />
                         </View>
-                    )}
-                    
-                    <StreakCard />
-                    <ArchetypeCard />
+                    )}                    
                 </ScrollView>
             </View>
         </SafeAreaView>

@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text, SafeAreaView, View, TouchableOpacity } fr
 import Settings from '@components/account/Settings';
 import { Ionicons } from '@expo/vector-icons';
 import { getUser, UserData } from '@services/userStorage';
+import ArchetypeCard from '@components/progress/ArchetypeCard';
+
 
 export default function AccountScreen() {
   const [user, setUser] = useState<UserData | null>(null);
@@ -28,6 +30,8 @@ export default function AccountScreen() {
 
         <Text style={styles.name}>{user?.full_name || 'Tu nombre'}</Text>
         <Text style={styles.info}>{user?.email || 'correo@ejemplo.com'}</Text>
+
+        <ArchetypeCard />
 
         <TouchableOpacity style={styles.actionButton}>
           <Text style={styles.actionText}>Administrar notificaciones</Text>
