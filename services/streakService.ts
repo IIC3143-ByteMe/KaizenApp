@@ -6,7 +6,7 @@ const LAST_CHECK_KEY = 'kaizen_last_check';
 
 export interface StreakData {
   streak: number;
-  lastTimestamp: string;
+  lastTimestamp: string | null;
 }
 
 export async function fetchStreakFromBackend(): Promise<StreakData | null> {
@@ -17,10 +17,14 @@ export async function fetchStreakFromBackend(): Promise<StreakData | null> {
       streak,
       lastTimestamp: last_timestamp,
     };
-    await AsyncStorage.multiSet([
-      [STREAK_KEY, data.streak.toString()],
-      [LAST_CHECK_KEY, data.lastTimestamp],
-    ]);
+    await AsyncStorage.setItem(STREAK_KEY, streak.toString());
+
+    if (last_timestamp !== null) {
+      await AsyncStorage.setItem(LAST_CHECK_KEY, last_timestamp);
+    } else {
+      await AsyncStorage.removeItem(LAST_CHECK_KEY);
+    }
+    
     return data;
   } catch (error) {
     console.error('❌ Error fetching streak from backend:', error);

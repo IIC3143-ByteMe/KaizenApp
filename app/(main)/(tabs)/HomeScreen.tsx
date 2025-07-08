@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import HomeHeader from '@components/home/HomeHeader';
@@ -64,7 +64,6 @@ export default function HomeScreen() {
                 });
             }
         } catch (error) {
-            console.error('Error loading habits and calculating goals:', error);
         }
     };
 
