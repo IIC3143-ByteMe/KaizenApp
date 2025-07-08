@@ -9,7 +9,6 @@ export default function StreakCard() {
     
     useFocusEffect(
         useCallback(() => {
-            console.log('🔄 StreakCard recibió foco, actualizando streak...');
             refreshStreak(true);
             return () => {};
         }, [refreshStreak])

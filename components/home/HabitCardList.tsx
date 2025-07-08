@@ -57,7 +57,6 @@ export default function HabitCardList({
             filtered = filtered.filter(habit => 
                 habit.taskDays && habit.taskDays.includes(selectedDayCode)
             );
-            console.log(`Filtrando por día: ${selectedDayCode}, encontrados: ${filtered.length}`);
         }
         
         if (selectedFilter !== 'all') {
@@ -66,13 +65,11 @@ export default function HabitCardList({
         
         setFilteredHabits(filtered);
         
-        console.log(`Filtrado por día: ${selectedDayCode}, categoría: ${selectedFilter}, ${filtered.length} hábitos encontrados`);
     };
 
     const onRefresh = async () => {
         try {
             setRefreshing(true);
-            console.log('🔄 Actualizando hábitos desde el backend...');
             
             await Promise.all([
                 fetchHabitsFromBackend().then(backendHabits => {
@@ -85,7 +82,6 @@ export default function HabitCardList({
                 onHabitsUpdate();
             }
             
-            console.log('✅ Hábitos y completions actualizados correctamente');
         } catch (error) {
         } finally {
             setRefreshing(false);

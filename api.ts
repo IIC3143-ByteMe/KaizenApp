@@ -28,7 +28,7 @@ api.interceptors.response.use(
     response => {
         
         if (response.data) {
-            console.log('📦 Respuesta Backend OK:');
+            console.log('📦 Respuesta Backend OK');
         }
         
         return response;

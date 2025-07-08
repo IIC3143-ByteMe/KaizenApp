@@ -66,7 +66,6 @@ export default function WeekdaySelector({ onDateSelected }: WeekdaySelectorProps
 
   const handleDayPress = (index: number) => {
     const selectedDay = days[index];
-    console.log(`Día seleccionado: ${selectedDay.label} (fecha: ${selectedDay.formattedDate}, código: ${selectedDay.dayCode})`);
     
     setDays(days.map((day, idx) => ({
       ...day,

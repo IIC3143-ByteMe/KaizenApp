@@ -9,7 +9,6 @@ export default function IkigaiScreen() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleSaveDescriptions = async (newValues: Descriptions) => {
-    console.log('Saved:', newValues);
     setRefreshKey(prev => prev + 1);
     setModalVisible(false);
   };

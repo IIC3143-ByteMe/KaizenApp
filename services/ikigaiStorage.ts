@@ -78,7 +78,6 @@ export const clearIkigaiData = async (): Promise<void> => {
       AsyncStorage.removeItem(IKIGAI_KEY),
       AsyncStorage.removeItem(QUIZ_DONE_KEY),
     ]);
-    console.log("Datos de Ikigai eliminados");
   } catch (error) {
     throw error;
   }

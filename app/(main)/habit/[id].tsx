@@ -81,7 +81,6 @@ export default function HabitDetailScreen() {
             habitCompletion.completed && 
             previousProgress < habit.goalTarget && 
             newValue >= habit.goalTarget) {
-          console.log('🎯 ¡Hábito completado! Incrementando racha...');
           await fetchStreakFromBackend();
         }
       }

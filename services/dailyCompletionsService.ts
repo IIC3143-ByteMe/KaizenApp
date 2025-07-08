@@ -46,13 +46,9 @@ export const fetchDailyCompletionsFromBackend = async (targetDate?: string): Pro
       date = localDate.toISOString().split('T')[0];
     }
     
-    console.log(`� Obteniendo daily completions del backend para fecha ${date}...`);
-    console.log(`�📅 Fecha para obtener daily completions: ${date}`);
     const response = await api.post('/daily-completions/', date);
     
     const daily_completions: DailyCompletions = response.data;
-
-    console.log(`✅ Obtenidos daily completions del backend para ${date}: ${JSON.stringify(daily_completions)}`);
     
     const storageKey = getStorageKeyForDate(date);
     await AsyncStorage.setItem(storageKey, JSON.stringify(daily_completions));
@@ -110,18 +106,14 @@ export const updateHabitCompletion = async (
       throw new Error(`No se pudo obtener daily completions para fecha ${date}`);
     }
     
-    try {
-      console.log(`🔄 Actualizando progreso para hábito ${habitId} a ${progress} en fecha ${date}...`);
-      
+    try {      
       const payload = {
         habit_id: habitId,
         date: date,
         progress: progress
       };
       
-      console.log('📤 Enviando payload:', payload);
       await api.patch('/daily-completions/update-progress', payload);
-      console.log('✅ Progreso actualizado en el backend');
       
       const updatedCompletions = await fetchDailyCompletionsFromBackend(date);
       return updatedCompletions;
@@ -216,8 +208,6 @@ export const getHabitCompletion = async (
 
 export const preloadCompletionsForDateRange = async (dates: string[]): Promise<void> => {
   try {
-    console.log(`🔄 Preloading completions for ${dates.length} days...`);
-    
     const fetchPromises = dates.map(date => {
       return getDailyCompletions(date)
         .then(completions => {
@@ -233,14 +223,11 @@ export const preloadCompletionsForDateRange = async (dates: string[]): Promise<v
     
     await Promise.all(fetchPromises);
     
-    console.log('✅ Preloaded completions for all dates');
   } catch (error) {}
 };
 
 export const clearAllDailyCompletions = async (): Promise<void> => {
-  try {
-    console.log('🔄 Limpiando todos los daily completions...');
-    
+  try {   
     const allKeys = await AsyncStorage.getAllKeys();
     
     const completionsKeys = allKeys.filter(key => 
@@ -249,9 +236,6 @@ export const clearAllDailyCompletions = async (): Promise<void> => {
     
     if (completionsKeys.length > 0) {
       await AsyncStorage.multiRemove(completionsKeys);
-      console.log(`✅ Eliminados ${completionsKeys.length} registros de daily completions`);
-    } else {
-      console.log('ℹ️ No se encontraron datos de daily completions para eliminar');
     }
   } catch (error) {
     throw error;
@@ -259,13 +243,10 @@ export const clearAllDailyCompletions = async (): Promise<void> => {
 };
 
 export const getMonthCompletions = async (month: string): Promise<DailyCompletions[]> => {
-  try {
-    console.log(`🔍 Obteniendo completions para el mes ${month}...`);
-    
+  try {    
     const response = await api.get<DailyCompletions[]>(`/month-completions/${month}`);
     
     if (response.data && Array.isArray(response.data)) {
-      console.log(`✅ Obtenidas ${response.data.length} completions para el mes ${month}`);
       
       for (const completion of response.data) {
         if (completion.date) {
@@ -276,8 +257,6 @@ export const getMonthCompletions = async (month: string): Promise<DailyCompletio
       
       return response.data;
     }
-    
-    console.log(`⚠️ No se encontraron completions para el mes ${month}`);
     return [];
   } catch (error) {
     return [];

@@ -81,7 +81,6 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
         ikigai_category: h.ikigai_category?.toLowerCase() ?? null
       }));
       setAllHabits(normalized);
-      console.log("Habits loaded:", normalized);
     };
 
     loadData();
@@ -113,7 +112,6 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
         </View>
       ))}
 
-      {/* Etiquetas */}
       <TouchableOpacity 
         style={[styles.box, styles.labelPasion]} 
         onPress={() => setSelectedIkigai("passion")}
@@ -141,7 +139,6 @@ export default function IkigaiDiagram({ refreshKey }: Props) {
 
       <Text style={styles.labelIkigai}>IKIGAI</Text>
 
-      {/* Modal hábitos */}
       <Modal
         visible={selectedIkigai !== null}
         animationType="none"

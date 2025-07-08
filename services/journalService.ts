@@ -20,9 +20,7 @@ export const getJournalQuestion = async (): Promise<string> => {
 
 
 export const getJournalEntryForDate = async (date: string): Promise<JournalEntry | null> => {
-  try {
-    console.log(`🔍 Buscando entrada para la fecha: ${date}`);
-    
+  try {    
     const response = await api.get<JournalEntry>(`/journal/entry/${date}`);
     
     if (response.data && response.data.entry) {
@@ -31,7 +29,6 @@ export const getJournalEntryForDate = async (date: string): Promise<JournalEntry
     
     return null;
   } catch (error) {
-    console.log('No se encontró una entrada de journal para la fecha:', date, error);
     return null;
   }
 };
@@ -42,13 +39,9 @@ export const saveJournalEntry = async (entry: string, date?: string): Promise<bo
     
     if (date) {
       payload.date = date;
-      console.log(`💾 Guardando entrada para fecha específica: ${date}`);
-    } else {
-      console.log('💾 Guardando entrada para la fecha actual');
     }
     
     await api.post('/journal/entry', payload);
-    console.log('✅ Entrada de journal guardada exitosamente');
     return true;
   } catch (error) {
     return false;

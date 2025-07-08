@@ -10,14 +10,11 @@ export default function ProgressScreen() {
     const [showDayDetails, setShowDayDetails] = useState(false);
 
     const handleDaySelected = (date: string) => {
-        console.log(`Día seleccionado: ${date}`);
         setSelectedDate(date);
         setShowDayDetails(true);
     };
 
-    const handleDetailsLoaded = (hasData: boolean) => {
-        console.log(`Datos cargados para ${selectedDate}: ${hasData ? 'Sí' : 'No'}`);
-    };
+    const handleDetailsLoaded = (hasData: boolean) => {};
 
     return (
         <SafeAreaView style={styles.container}>

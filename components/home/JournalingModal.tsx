@@ -80,7 +80,6 @@ export default function JournalingModal({ visible, onClose, date }: JournalingMo
       const success = await saveJournalEntry(journalEntry);
       
       if (success) {
-        console.log('✅ Entrada de journal guardada exitosamente');
         onClose();
       } else {
         setError('No se pudo guardar tu entrada. Intenta de nuevo.');

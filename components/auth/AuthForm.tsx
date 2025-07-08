@@ -28,14 +28,8 @@ export default function AuthForm() {
         try {
             setLoading(true);
             await login({ email, password });
-            
-            console.log('🔄 Cargando hábitos después del login...');
             await fetchHabitsFromBackend();
-            
-            console.log('🔄 Cargando ikigai después del login...');
             const ikigai = await fetchIkigaiFromBackend();
-
-            console.log('🔄 Cargando user info después del login...');
             await fetchUserFromBackend();
 
             if (ikigai) {

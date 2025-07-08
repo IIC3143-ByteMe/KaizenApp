@@ -89,7 +89,6 @@ export const saveHabit = async (habit: Omit<Habit, 'id' | 'completed' | 'syncedW
             backendIkigaiCategory = backendResponse.ikigai_category || null;
         } catch (error) {
             console.warn('⚠️ No se pudo guardar en el backend:', error);
-            console.log('⚙️ Continuando con guardado local solamente');
         }
         
         const localId = Date.now().toString();
@@ -153,14 +152,12 @@ export const deleteHabit = async (id: string) => {
         if (habit?.syncedWithBackend) {
             try {
                 await api.delete(`/habits/${id}`);
-                console.log('✅ Hábito eliminado exitosamente del backend');
             } catch (backendError) {
                 console.error('❌ Error al eliminar hábito del backend:', backendError);
             }
         }
         const updatedHabits = habits.filter(habit => habit.id !== id);
         await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
-        console.log('✅ Hábito eliminado exitosamente del almacenamiento local');
         
         return true;
     } catch (error) {
@@ -201,7 +198,6 @@ export const updateHabitProgress = async (id: string, newCompleted: number) => {
 export const clearAllHabits = async (): Promise<void> => {
     try {
         await AsyncStorage.removeItem(HABITS_STORAGE_KEY);
-        console.log('Todos los hábitos han sido eliminados');
     } catch (error) {
         console.error('Error al eliminar hábitos:', error);
         throw error;
@@ -210,7 +206,6 @@ export const clearAllHabits = async (): Promise<void> => {
 
 export const fetchHabitsFromBackend = async (): Promise<Habit[]> => {
   try {
-    console.log('🔄 Obteniendo hábitos del backend...');
     const response = await api.get('/habits/');
     
     const backendHabits = response.data.map((backendHabit: any) => ({
@@ -231,8 +226,6 @@ export const fetchHabitsFromBackend = async (): Promise<Habit[]> => {
       completed: backendHabit.progress ?? 0,
       syncedWithBackend: true,
     }));
-
-    console.log(`✅ Obtenidos ${backendHabits.length} hábitos del backend`);
     
     await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(backendHabits));
     

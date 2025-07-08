@@ -106,7 +106,6 @@ export default function AddHabitModal({ visible, onClose, selectedTemplate, onHa
             };
             
             const created = await saveHabit(habitData);
-            console.log('✅ Hábito guardado exitosamente');
 
             const reminderIds = await scheduleHabitReminders({
                 id: created.id,

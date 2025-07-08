@@ -51,7 +51,6 @@ export async function getLastCheckLocal(): Promise<string | null> {
 export async function clearStreakData(): Promise<void> {
   try {
     await AsyncStorage.multiRemove([STREAK_KEY, LAST_CHECK_KEY]);
-    console.log('🗑️ Streak data cleared');
   } catch (error) {
     throw error;
   }

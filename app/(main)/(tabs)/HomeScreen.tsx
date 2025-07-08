@@ -54,9 +54,6 @@ export default function HomeScreen() {
                     completedHabits: completedCount
                 });
                 
-                if (completedCount === habitsForDay.length && completedCount > 0) {
-                    console.log('🎯 Todos los hábitos del día completados!');
-                }
             } else {
                 setGoalsData({
                     totalHabits: habitsForDay.length,
@@ -83,7 +80,6 @@ export default function HomeScreen() {
     };
     
     const handleFilterChange = (filter: string) => {
-        console.log('Filtro seleccionado:', filter);
         setSelectedFilter(filter);
     };
 
