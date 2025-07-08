@@ -37,9 +37,18 @@ export const getJournalEntryForDate = async (date: string): Promise<JournalEntry
   }
 };
 
-export const saveJournalEntry = async (entry: string): Promise<boolean> => {
+export const saveJournalEntry = async (entry: string, date?: string): Promise<boolean> => {
   try {
-    await api.post('/journal/entry', { entry: entry.trim() });
+    const payload: { entry: string; date?: string } = { entry: entry.trim() };
+    
+    if (date) {
+      payload.date = date;
+      console.log(`💾 Guardando entrada para fecha específica: ${date}`);
+    } else {
+      console.log('💾 Guardando entrada para la fecha actual');
+    }
+    
+    await api.post('/journal/entry', payload);
     console.log('✅ Entrada de journal guardada exitosamente');
     return true;
   } catch (error) {
