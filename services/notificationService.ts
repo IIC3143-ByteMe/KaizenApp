@@ -1,6 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import { fetchHabitsFromBackend, updateHabit } from "./habitStorage";
+import { getHabits, updateHabit } from "./habitStorage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -97,7 +97,7 @@ export async function cancelHabitReminders(ids: string[]) {
 
 export async function cancelAllReminders() {
   await Notifications.cancelAllScheduledNotificationsAsync();
-  const habits = await fetchHabitsFromBackend();
+  const habits = await getHabits();
   await Promise.all(
     habits.map(h =>
       updateHabit({ ...h, reminderIds: [] })
@@ -106,7 +106,7 @@ export async function cancelAllReminders() {
 }
 
 export async function fetchNotificationsFromBackend() {
-  const allHabits = await fetchHabitsFromBackend();
+  const allHabits = await getHabits();
   for (let h of allHabits) {
     const reminderIds = await scheduleHabitReminders({
       id: h.id,

@@ -12,12 +12,12 @@ export const clearAllUserData = async (): Promise<void> => {
     await removeSessionToken();
 
     await Promise.all([
+      cancelAllReminders(),
       clearStreakData(),
       clearAllHabits(),
       clearIkigaiData(),
       clearUser(),
-      clearAllDailyCompletions(),
-      cancelAllReminders()
+      clearAllDailyCompletions()
     ]);
 
     console.log('Todos los datos del usuario han sido eliminados');

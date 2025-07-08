@@ -158,7 +158,6 @@ export const deleteHabit = async (id: string) => {
                 console.error('❌ Error al eliminar hábito del backend:', backendError);
             }
         }
-      
         const updatedHabits = habits.filter(habit => habit.id !== id);
         await AsyncStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(updatedHabits));
         console.log('✅ Hábito eliminado exitosamente del almacenamiento local');

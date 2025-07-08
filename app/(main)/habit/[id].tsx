@@ -12,6 +12,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { getHabitById, deleteHabit } from '@services/habitStorage';
+import { cancelHabitReminders } from '@services/notificationService';
 import { getHabitCompletion, updateHabitCompletion } from '@services/dailyCompletionsService';
 import { UNITS } from '@components/add-habit/GoalSelector';
 import CircularProgress from '@components/utils/CircularProgress';
@@ -111,6 +112,7 @@ export default function HabitDetailScreen() {
           onPress: async () => {
             try {
               if (typeof id === 'string') {
+                await cancelHabitReminders(habit.reminderIds || []);
                 await deleteHabit(id);
                 router.back();
               }

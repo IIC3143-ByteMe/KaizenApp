@@ -7,6 +7,8 @@ import { login } from '@services/authService';
 import { fetchHabitsFromBackend } from '@services/habitStorage';
 import { fetchIkigaiFromBackend } from '@services/ikigaiStorage';
 import { fetchUserFromBackend } from '@services/userStorage';
+import { fetchDailyCompletionsFromBackend } from "@services/dailyCompletionsService";
+import { fetchNotificationsFromBackend } from "@services/notificationService";
 
 export default function AuthForm() {
     const router = useRouter();
@@ -36,9 +38,11 @@ export default function AuthForm() {
             await fetchUserFromBackend();
 
             if (ikigai) {
-            router.replace("/(main)/(tabs)/HomeScreen");
+                await fetchDailyCompletionsFromBackend();
+                await fetchNotificationsFromBackend();
+                router.replace("/(main)/(tabs)/HomeScreen");
             } else {
-            router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
+                router.replace("/(main)/ikigai-quiz/IkigaiQuizScreen");
             }
         } catch (error) {
             Alert.alert(
