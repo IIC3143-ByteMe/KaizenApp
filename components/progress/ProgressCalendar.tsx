@@ -119,9 +119,11 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
     };
     
     const handleDayPress = (day: DayData) => {
-        setSelectedDay(day.date);
-        if (onDaySelected) {
-            onDaySelected(day.date);
+        if (day.isCurrentMonth) {
+            setSelectedDay(day.date);
+            if (onDaySelected) {
+                onDaySelected(day.date);
+            }
         }
     };
     
@@ -191,6 +193,7 @@ export default function ProgressCalendar({ onDaySelected }: ProgressCalendarProp
                             <TouchableOpacity
                                 key={dayIndex}
                                 onPress={() => handleDayPress(day)}
+                                disabled={!day.isCurrentMonth}
                                 style={[
                                     styles.dayCircle,
                                     !day.isCurrentMonth && styles.otherMonthDay,
@@ -285,10 +288,11 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     otherMonthDay: {
-        opacity: 0.5,
+        opacity: 0.4,
+        pointerEvents: 'none',
     },
     otherMonthDayText: {
-        color: '#888',
+        color: '#AAA',
     },
     selectedDay: {
         borderWidth: 2,
