@@ -16,7 +16,7 @@ import { cancelHabitReminders } from '@services/notificationService';
 import { getHabitCompletion, updateHabitCompletion } from '@services/dailyCompletionsService';
 import { UNITS } from '@components/add-habit/GoalSelector';
 import CircularProgress from '@components/utils/CircularProgress';
-import { incrementStreak } from '@services/streakService';
+import { fetchStreakFromBackend } from '@services/streakService';
 import HabitProgressSelector from '@components/habit-progress/HabitProgressSelector';
 
 
@@ -83,7 +83,7 @@ export default function HabitDetailScreen() {
             previousProgress < habit.goalTarget && 
             newValue >= habit.goalTarget) {
           console.log('🎯 ¡Hábito completado! Incrementando racha...');
-          await incrementStreak();
+          await fetchStreakFromBackend();
         }
       }
     } catch (error) {

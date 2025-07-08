@@ -1,102 +1,58 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../api';
 
 const STREAK_KEY = 'kaizen_streak';
 const LAST_CHECK_KEY = 'kaizen_last_check';
 
+export interface StreakData {
+  streak: number;
+  lastTimestamp: string;
+}
 
-export const getStreak = async (): Promise<number> => {
+export async function fetchStreakFromBackend(): Promise<StreakData | null> {
   try {
-    const value = await AsyncStorage.getItem(STREAK_KEY);
-    return value ? parseInt(value) : 0;
-  } catch (error) {
-    console.error('Error getting streak:', error);
-    return 0;
-  }
-};
-
-
-export const setStreak = async (value: number): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(STREAK_KEY, value.toString());
-  } catch (error) {
-    console.error('Error setting streak:', error);
-  }
-};
-
-
-export const incrementStreak = async (): Promise<number> => {
-  try {
-    const lastCheckStr = await AsyncStorage.getItem(LAST_CHECK_KEY);
-    const today = new Date().toDateString();
-    
-    if (lastCheckStr === today) {
-      return await getStreak();
-    }
-    
-    await AsyncStorage.setItem(LAST_CHECK_KEY, today);
-    
-    const currentStreak = await getStreak();
-    const newStreak = currentStreak + 1;
-    await setStreak(newStreak);
-    
-    return newStreak;
-  } catch (error) {
-    console.error('Error incrementing streak:', error);
-    return await getStreak();
-  }
-};
-
-
-export const resetStreak = async (): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(STREAK_KEY, '0');
-  } catch (error) {
-    console.error('Error resetting streak:', error);
-    throw error;
-  }
-};
-
-
-export const clearStreakData = async (): Promise<void> => {
-  try {
-    await Promise.all([
-      AsyncStorage.removeItem(STREAK_KEY),
-      AsyncStorage.removeItem(LAST_CHECK_KEY)
+    const response = await api.get<StreakData>('/user/streak');
+    const { streak, last_timestamp } = response.data as any;
+    const data: StreakData = {
+      streak,
+      lastTimestamp: last_timestamp,
+    };
+    await AsyncStorage.multiSet([
+      [STREAK_KEY, data.streak.toString()],
+      [LAST_CHECK_KEY, data.lastTimestamp],
     ]);
-    console.log('Datos de streak eliminados');
+    return data;
   } catch (error) {
-    console.error('Error al eliminar datos de streak:', error);
-    throw error;
+    console.error('❌ Error fetching streak from backend:', error);
+    return null;
   }
 }
 
-
-export const checkStreakContinuity = async (): Promise<number> => {
+export async function getStreakLocal(): Promise<number> {
   try {
-    const lastCheckStr = await AsyncStorage.getItem(LAST_CHECK_KEY);
-    
-    if (!lastCheckStr) {
-      await AsyncStorage.setItem(LAST_CHECK_KEY, new Date().toDateString());
-      return await getStreak();
-    }
-    
-    const lastCheck = new Date(lastCheckStr);
-    const today = new Date();
-    
-    lastCheck.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-    
-    const diffTime = Math.abs(today.getTime() - lastCheck.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 1) {
-      await resetStreak();
-      await AsyncStorage.setItem(LAST_CHECK_KEY, today.toDateString());
-    }
-    
-    return await getStreak();
+    const stored = await AsyncStorage.getItem(STREAK_KEY);
+    return stored ? parseInt(stored, 10) : 0;
   } catch (error) {
-    console.error('Error checking streak continuity:', error);
-    return await getStreak();
+    console.error('❌ Error reading local streak:', error);
+    return 0;
   }
-};
+}
+
+export async function getLastCheckLocal(): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(LAST_CHECK_KEY);
+  } catch (error) {
+    console.error('❌ Error reading last check timestamp:', error);
+    return null;
+  }
+}
+
+export async function clearStreakData(): Promise<void> {
+  try {
+    await AsyncStorage.multiRemove([STREAK_KEY, LAST_CHECK_KEY]);
+    console.log('🗑️ Streak data cleared');
+  } catch (error) {
+    console.error('❌ Error clearing streak data:', error);
+    throw error;
+  }
+}
