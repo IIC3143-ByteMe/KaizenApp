@@ -6,212 +6,373 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
-  ViewStyle,
+  Dimensions,
+  Animated,
 } from "react-native";
-import IkigaiCircle from "@components/ikigai/IkigaiCircle";
-import { getIkigai } from "@services/ikigaiStorage";
-import { getHabits, Habit } from '@services/habitStorage';
+import Svg, { Circle, Text as SvgText } from "react-native-svg";
+import { Ionicons } from "@expo/vector-icons";
+import { useIkigai, IkigaiCategory } from "@hooks/useIkigai";
 
 type Props = {
   refreshKey?: number;
 };
 
-type Circle = {
-  id: number;
+const CIRCLE_COLORS = {
+  love: "rgba(255, 162, 192, 0.25)",
+  good: "rgba(162, 206, 255, 0.25)",
+  world: "rgba(162, 255, 200, 0.25)",
+  paid: "rgba(255, 230, 162, 0.25)"
+};
+
+const STROKE_COLORS = {
+  love: "rgba(255, 130, 170, 0.8)",
+  good: "rgba(130, 180, 255, 0.8)",
+  world: "rgba(130, 230, 180, 0.8)",
+  paid: "rgba(255, 200, 130, 0.8)"
+};
+
+const TEXT_COLOR = "#333";
+const IKIGAI_COLOR = "#7D89FF";
+
+type MainCategory = "love" | "good" | "world" | "paid";
+
+interface CategoryInfo {
+  id: MainCategory | IkigaiCategory;
   label: string;
   description: string;
-  position: "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
-};
+}
 
-const circlePositions: Record<Circle["position"], ViewStyle> = {
-  topLeft: { position: 'absolute', top: 150, left: 30 },
-  topRight: { position: 'absolute', top: 150, right: 30 },
-  bottomLeft: { position: 'absolute', bottom: 150, left: 30 },
-  bottomRight: { position: 'absolute', bottom: 150, right: 30 },
-};
+const MAIN_CATEGORIES: CategoryInfo[] = [
+  { id: "love", label: "Lo que amas", description: "Actividades que disfrutas y te apasionan" },
+  { id: "good", label: "En lo que eres bueno", description: "Tus talentos y habilidades naturales" },
+  { id: "world", label: "Lo que el mundo necesita", description: "Contribuciones que mejoran la vida de otros" },
+  { id: "paid", label: "Por lo que te pagan", description: "Actividades por las que recibes compensación" }
+];
 
-const TRANSLATIONS: Record<string, string> = {
-  passion:   "Pasión",
-  mission:   "Misión",
-  vocation:  "Vocación",
-  profession:"Profesión",
-};
+const INTERSECTIONS: CategoryInfo[] = [
+  { id: "passion", label: "Pasión", description: "Lo que amas hacer y en lo que eres bueno" },
+  { id: "mission", label: "Misión", description: "Lo que amas hacer y lo que el mundo necesita" },
+  { id: "vocation", label: "Vocación", description: "Lo que el mundo necesita y en lo que eres bueno" },
+  { id: "profession", label: "Profesión", description: "En lo que eres bueno y por lo que te pagan" }
+];
+
+const { width } = Dimensions.get('window');
+const DIAGRAM_SIZE = Math.min(width * 0.95, 380);
+const CIRCLE_RADIUS = DIAGRAM_SIZE * 0.4;
+const CENTER_X = DIAGRAM_SIZE / 2;
+const CENTER_Y = DIAGRAM_SIZE / 2;
+const OFFSET = CIRCLE_RADIUS * 0.6;
 
 export default function IkigaiDiagram({ refreshKey }: Props) {
-  const [circles, setCircles] = useState<Circle[]>([]);
-  const [allHabits, setAllHabits] = useState<Habit[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [selectedIkigai, setSelectedIkigai] = useState<null | string>(null);
+  const { ikigaiData, habits, getHabitsByCategory, loading } = useIkigai(refreshKey);
+  const [selectedCategory, setSelectedCategory] = useState<MainCategory | IkigaiCategory | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    const loadData = async () => {
-      const ikigai = await getIkigai();
-      if (ikigai) {
-        setCircles([
-          {
-            id: 1,
-            label: "Lo que AMAS",
-            description: ikigai.you_love || "¿Qué amas?",
-            position: "topLeft",
-          },
-          {
-            id: 2,
-            label: "En lo que eres BUENO",
-            description: ikigai.good_at || "¿En qué eres bueno/a?",
-            position: "topRight",
-          },
-          {
-            id: 3,
-            label: "Lo que el mundo NECESITA",
-            description: ikigai.world_needs || "¿Qué necesita el mundo?",
-            position: "bottomLeft",
-          },
-          {
-            id: 4,
-            label: "Por lo que te pueden PAGAR",
-            description: ikigai.is_profitable || "¿Por qué te pueden pagar?",
-            position: "bottomRight",
-          },
-        ]);
-      }
-
-      const habits = await getHabits();
-      const normalized = habits.map(h => ({
-        ...h,
-        ikigai_category: h.ikigai_category?.toLowerCase() ?? null
-      }));
-      setAllHabits(normalized);
-    };
-
-    loadData();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true
+    }).start();
   }, [refreshKey]);
 
-  const toggle = (id: number) => {
-    setActiveId((prev) => (prev === id ? null : id));
+  const circlePositions = [
+    { id: "love" as MainCategory, cx: CENTER_X - OFFSET, cy: CENTER_Y - OFFSET },
+    { id: "good" as MainCategory, cx: CENTER_X + OFFSET, cy: CENTER_Y - OFFSET },
+    { id: "paid" as MainCategory, cx: CENTER_X - OFFSET, cy: CENTER_Y + OFFSET },
+    { id: "world" as MainCategory, cx: CENTER_X + OFFSET, cy: CENTER_Y + OFFSET },
+  ];
+
+  const mainLabelPositions = [
+    { 
+      id: "love" as MainCategory, 
+      x: CENTER_X - OFFSET * 1.5, 
+      y: CENTER_Y - OFFSET * 1.5, 
+      lines: ["Lo que", "amas"] 
+    },
+    { 
+      id: "good" as MainCategory, 
+      x: CENTER_X + OFFSET * 1.5, 
+      y: CENTER_Y - OFFSET * 1.5, 
+      lines: ["En lo que", "eres bueno"] 
+    },
+    { 
+      id: "paid" as MainCategory, 
+      x: CENTER_X - OFFSET * 1.5, 
+      y: CENTER_Y + OFFSET * 1.5, 
+      lines: ["Por lo que", "te pagan"] 
+    },
+    { 
+      id: "world" as MainCategory, 
+      x: CENTER_X + OFFSET * 1.5, 
+      y: CENTER_Y + OFFSET * 1.5, 
+      lines: ["Lo que el", "mundo necesita"] 
+    },
+  ];
+
+  const intersectionPositions = [
+    { id: "passion" as IkigaiCategory, x: CENTER_X, y: CENTER_Y - OFFSET * 1.0, text: "Pasión" },
+    { id: "mission" as IkigaiCategory, x: CENTER_X - OFFSET * 1.0, y: CENTER_Y, text: "Misión" },
+    { id: "profession" as IkigaiCategory, x: CENTER_X + OFFSET * 1.0, y: CENTER_Y, text: "Profesión" },
+    { id: "vocation" as IkigaiCategory, x: CENTER_X, y: CENTER_Y + OFFSET * 1.0, text: "Vocación" },
+  ];
+
+  const handleCategorySelect = (category: MainCategory | IkigaiCategory) => {
+    setSelectedCategory(category);
+    setModalVisible(true);
   };
 
-  const filteredHabits = allHabits.filter(
-    (h) => h.ikigai_category === selectedIkigai
-  );
+  const getCategoryDescription = () => {
+    if (!selectedCategory) return "";
+    
+    if (["love", "good", "world", "paid"].includes(selectedCategory)) {
+      const mainCategory = selectedCategory as MainCategory;
+      
+      const descriptions = {
+        love: ikigaiData.you_love || "Lo que te hace feliz y disfrutas hacer",
+        good: ikigaiData.good_at || "Tus habilidades y fortalezas",
+        world: ikigaiData.world_needs || "Cómo contribuyes a mejorar el mundo",
+        paid: ikigaiData.is_profitable || "Por lo que las personas están dispuestas a pagar"
+      };
+      
+      return descriptions[mainCategory];
+    } 
+    else {
+      const ikigaiCategory = selectedCategory as IkigaiCategory;
+      const intersection = INTERSECTIONS.find(i => i.id === ikigaiCategory);
+      return intersection?.description || "";
+    }
+  };
 
-  const selectedLabel =
-    selectedIkigai != null
-      ? TRANSLATIONS[selectedIkigai] ?? selectedIkigai
-      : "";
+  const getRelatedHabits = () => {
+    if (!selectedCategory || ["love", "good", "world", "paid"].includes(selectedCategory)) {
+      return [];
+    }
+    
+    return getHabitsByCategory(selectedCategory as IkigaiCategory);
+  };
 
+  const getModalTitle = () => {
+    if (!selectedCategory) return "";
+    
+    if (["love", "good", "world", "paid"].includes(selectedCategory)) {
+      const mainCategory = MAIN_CATEGORIES.find(c => c.id === selectedCategory);
+      return mainCategory?.label || "";
+    } else {
+      const intersection = INTERSECTIONS.find(i => i.id === selectedCategory);
+      return intersection?.label || "";
+    }
+  };
+
+  if (loading) {
+    return null;
+  }
+
+  const relatedHabits = getRelatedHabits();
+  
   return (
-    <View style={styles.container}>
-      {circles.map((c) => (
-        <View key={c.id} style={circlePositions[c.position]}>
-          <IkigaiCircle
-            label={c.label}
-            description={c.description}
-            active={activeId === c.id}
-            onPress={() => toggle(c.id)}
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+      <View style={styles.diagramContainer}>
+        <Svg width={DIAGRAM_SIZE} height={DIAGRAM_SIZE} viewBox={`0 0 ${DIAGRAM_SIZE} ${DIAGRAM_SIZE}`}>
+          {circlePositions.map((circle) => (
+            <Circle
+              key={circle.id}
+              cx={circle.cx}
+              cy={circle.cy}
+              r={CIRCLE_RADIUS}
+              fill={CIRCLE_COLORS[circle.id]}
+              stroke={STROKE_COLORS[circle.id]}
+              strokeWidth={1.5}
+            />
+          ))}
+
+          {mainLabelPositions.map((label) => (
+            <React.Fragment key={`label-${label.id}`}>
+              {label.lines.map((line, lineIndex) => (
+                <SvgText
+                  key={`label-${label.id}-line-${lineIndex}`}
+                  x={label.x}
+                  y={label.y + (lineIndex * 16)}
+                  fontSize={12}
+                  fontWeight="bold"
+                  fill={TEXT_COLOR}
+                  textAnchor="middle"
+                >
+                  {line}
+                </SvgText>
+              ))}
+            </React.Fragment>
+          ))}
+
+          {intersectionPositions.map((intersection) => (
+            <SvgText
+              key={`intersection-${intersection.id}`}
+              x={intersection.x}
+              y={intersection.y}
+              fontSize={14}
+              fontWeight="bold"
+              fill={TEXT_COLOR}
+              textAnchor="middle"
+            >
+              {intersection.text}
+            </SvgText>
+          ))}
+
+          <SvgText
+            x={CENTER_X}
+            y={CENTER_Y + 5}
+            fontSize={16}
+            fontWeight="bold"
+            fill={IKIGAI_COLOR}
+            textAnchor="middle"
+          >
+            ikigai
+          </SvgText>
+        </Svg>
+
+        {circlePositions.map((circle) => (
+          <TouchableOpacity
+            key={`touch-${circle.id}`}
+            style={[
+              styles.touchCircle,
+              {
+                left: circle.cx - CIRCLE_RADIUS/2,
+                top: circle.cy - CIRCLE_RADIUS/2,
+                width: CIRCLE_RADIUS,
+                height: CIRCLE_RADIUS,
+              }
+            ]}
+            onPress={() => handleCategorySelect(circle.id)}
           />
-        </View>
-      ))}
+        ))}
 
-      <TouchableOpacity 
-        style={[styles.box, styles.labelPasion]} 
-        onPress={() => setSelectedIkigai("passion")}
-      >
-        <Text style={styles.boxLabel}>Pasión</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={[styles.box, styles.labelMision]} 
-        onPress={() => setSelectedIkigai("mission")}
-      >
-        <Text style={styles.boxLabel}>Misión</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={[styles.box, styles.labelVocacion]} 
-        onPress={() => setSelectedIkigai("vocation")}
-      >
-        <Text style={styles.boxLabel}>Vocación</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={[styles.box, styles.labelProfesion]} 
-        onPress={() => setSelectedIkigai("profession")}
-      >
-        <Text style={styles.boxLabel}>Profesión</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.labelIkigai}>IKIGAI</Text>
+        {intersectionPositions.map((intersection) => (
+          <TouchableOpacity
+            key={`touch-${intersection.id}`}
+            style={[
+              styles.touchIntersection,
+              {
+                left: intersection.x - CIRCLE_RADIUS/3,
+                top: intersection.y - CIRCLE_RADIUS/3,
+                width: CIRCLE_RADIUS/1.5,
+                height: CIRCLE_RADIUS/1.5,
+              }
+            ]}
+            onPress={() => handleCategorySelect(intersection.id)}
+          />
+        ))}
+        
+        <TouchableOpacity
+          style={[
+            styles.touchCenter,
+            {
+              left: CENTER_X - CIRCLE_RADIUS/4,
+              top: CENTER_Y - CIRCLE_RADIUS/4,
+              width: CIRCLE_RADIUS/2,
+              height: CIRCLE_RADIUS/2,
+            }
+          ]}
+          onPress={() => handleCategorySelect("passion")}
+        />
+      </View>
 
       <Modal
-        visible={selectedIkigai !== null}
-        animationType="none"
+        visible={modalVisible}
         transparent={true}
-        onRequestClose={() => setSelectedIkigai(null)}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Hábitos de {selectedLabel}</Text>
-            <FlatList
-              data={filteredHabits}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Text style={styles.modalItem}>{item.title}</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{getModalTitle()}</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.modalBody}>
+              <Text style={styles.descriptionTitle}>Descripción:</Text>
+              <Text style={styles.descriptionText}>{getCategoryDescription()}</Text>
+              
+              {relatedHabits.length > 0 && (
+                <>
+                  <Text style={[styles.descriptionTitle, {marginTop: 16}]}>
+                    Hábitos relacionados:
+                  </Text>
+                  <FlatList
+                    data={relatedHabits}
+                    keyExtractor={item => item.id}
+                    renderItem={({ item }) => (
+                      <View style={styles.habitItem}>
+                        <Ionicons 
+                          name={item.icon || "checkmark-circle"} 
+                          size={20} 
+                          color={item.color || "#94A9FF"} 
+                        />
+                        <Text style={styles.habitText}>{item.title}</Text>
+                      </View>
+                    )}
+                    ListEmptyComponent={
+                      <Text style={styles.emptyText}>
+                        No hay hábitos para esta categoría
+                      </Text>
+                    }
+                  />
+                </>
               )}
-            />
-            <TouchableOpacity
-              style={styles.modalClose}
-              onPress={() => setSelectedIkigai(null)}
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
             >
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>Cerrar</Text>
+              <Text style={styles.closeButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+      
+      <Text style={styles.helpText}>
+        Toca un círculo o intersección para más información
+      </Text>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  box: {
-    backgroundColor: 'white',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
+  container: {
+    flex: 1,
     justifyContent: 'center',
-    elevation: 2,
+    alignItems: 'center',
+  },
+  diagramContainer: {
+    width: DIAGRAM_SIZE,
+    height: DIAGRAM_SIZE,
+    position: 'relative',
+  },
+  touchCircle: {
     position: 'absolute',
+    backgroundColor: 'transparent',
+    borderRadius: 100,
   },
-  boxLabel: {
-    fontWeight: '600',
-    color: '#555',
-  },
-  labelPasion: {
-    top: 80,
-    left: '50%',
-    transform: [{ translateX: -30 }],
-  },
-  labelMision: {
-    top: '50%',
-    left: 30,
-    transform: [{ translateY: -10 }],
-  },
-  labelVocacion: {
-    bottom: 80,
-    left: '50%',
-    transform: [{ translateX: -30 }],
-  },
-  labelProfesion: {
-    top: '50%',
-    right: 30,
-    transform: [{ translateY: -10 }],
-  },
-  labelIkigai: {
+  touchIntersection: {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -30 }, { translateY: -10 }],
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#7D89FF',
+    backgroundColor: 'transparent',
+    borderRadius: 100,
+  },
+  touchCenter: {
+    position: 'absolute',
+    backgroundColor: 'transparent',
+    borderRadius: 100,
+  },
+  helpText: {
+    marginTop: 16,
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -221,29 +382,72 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    padding: 20,
     borderRadius: 20,
-    width: '80%',
-    maxHeight: '60%',
-    elevation: 4,
+    padding: 20,
+    width: '85%',
+    maxHeight: '70%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   modalTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 10,
-    textAlign: 'center',
+    color: '#333',
   },
-  modalItem: {
+  modalBody: {
+    maxHeight: '70%',
+  },
+  descriptionTitle: {
     fontSize: 16,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#555',
   },
-  modalClose: {
-    marginTop: 20,
-    backgroundColor: '#7D89FF',
+  descriptionText: {
+    fontSize: 15,
+    color: '#333',
+    lineHeight: 22,
+  },
+  habitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  habitText: {
+    fontSize: 15,
+    marginLeft: 10,
+    color: '#333',
+  },
+  emptyText: {
+    textAlign: 'center',
+    padding: 20,
+    color: '#777',
+    fontStyle: 'italic',
+  },
+  closeButton: {
+    backgroundColor: '#94A9FF',
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',
+    marginTop: 16,
   },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 15,
+  }
 });
