@@ -1,16 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import useStreak from '@hooks/useStreak';
 import { formatDateToSpanish } from '@utils/dateUtils';
+import { getStreakLocal } from '@services/streakService';
 
 export default function HomeHeader() {
-  const { streak, loading } = useStreak();
   const [currentDate, setCurrentDate] = useState<string>('');
-  
+  const [streak, setStreak] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
     const today = new Date();
     setCurrentDate(formatDateToSpanish(today));
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      setLoading(true);
+      getStreakLocal()
+        .then((s) => {
+          if (active) setStreak(s);
+        })
+        .catch(console.error)
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+      return () => {
+        active = false;
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.header}>

@@ -9,6 +9,7 @@ import { fetchIkigaiFromBackend } from '@services/ikigaiStorage';
 import { fetchUserFromBackend } from '@services/userStorage';
 import { fetchDailyCompletionsFromBackend } from "@services/dailyCompletionsService";
 import { fetchNotificationsFromBackend } from "@services/notificationService";
+import { fetchStreakFromBackend } from '@services/streakService';
 
 export default function AuthForm() {
     const router = useRouter();
@@ -39,6 +40,7 @@ export default function AuthForm() {
 
             if (ikigai) {
                 await fetchDailyCompletionsFromBackend();
+                await fetchStreakFromBackend();
                 await fetchNotificationsFromBackend();
                 router.replace("/(main)/(tabs)/HomeScreen");
             } else {
