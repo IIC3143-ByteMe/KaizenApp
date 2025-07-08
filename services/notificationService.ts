@@ -1,6 +1,11 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { getHabits, updateHabit } from "./habitStorage";
+import { 
+  getNotificationPreferences, 
+  updateHabitNotificationPreference,
+  updateMotivationalNotificationPreference 
+} from "./notificationPreferencesStorage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -20,6 +25,7 @@ export async function ensurePermissions() {
       console.warn("⚠️ Permisos de notificaciones no concedidos");
     }
   }
+  return granted;
 }
 
 export async function initNotifications() {
@@ -86,6 +92,8 @@ export async function scheduleHabitReminders({
     }
   }
 
+  await updateHabitNotificationPreference(id, true);
+  
   return scheduledIds;
 }
 
@@ -95,25 +103,101 @@ export async function cancelHabitReminders(ids: string[]) {
   }
 }
 
+export async function disableHabitNotifications(habitId: string, reminderIds: string[] = []) {
+  if (reminderIds && reminderIds.length > 0) {
+    await cancelHabitReminders(reminderIds);
+  }
+  
+  await updateHabitNotificationPreference(habitId, false);
+}
+
 export async function cancelAllReminders() {
   await Notifications.cancelAllScheduledNotificationsAsync();
   const habits = await getHabits();
   await Promise.all(
-    habits.map(h =>
-      updateHabit({ ...h, reminderIds: [] })
-    )
+    habits.map(async (h) => {
+      await updateHabit({ ...h, reminderIds: [] });
+      await updateHabitNotificationPreference(h.id, false);
+    })
   );
 }
 
 export async function fetchNotificationsFromBackend() {
   const allHabits = await getHabits();
+  const preferences = await getNotificationPreferences();
+  
   for (let h of allHabits) {
-    const reminderIds = await scheduleHabitReminders({
-      id: h.id,
-      title: h.title,
-      time: h.reminders,
-      daysOfWeek: h.taskDays,
-    });
-    await updateHabit({ ...h, reminderIds });
+    if (preferences.habitNotifications[h.id]) {
+      const reminderIds = await scheduleHabitReminders({
+        id: h.id,
+        title: h.title,
+        time: h.reminders,
+        daysOfWeek: h.taskDays,
+      });
+      await updateHabit({ ...h, reminderIds });
+    }
   }
+  
+  const { motivationalNotification } = preferences;
+  if (motivationalNotification && motivationalNotification.enabled) {
+    const [hour, minute] = motivationalNotification.time.split(':').map(Number);
+    await scheduleMotivationalNotification(
+      motivationalNotification.message,
+      hour,
+      minute
+    );
+  }
+}
+
+export async function scheduleMotivationalNotification(
+  message: string,
+  hour: number,
+  minute: number
+): Promise<string> {
+  await initNotifications();
+  
+  const allNotifications = await Notifications.getAllScheduledNotificationsAsync();
+  const motivationNotifications = allNotifications.filter(
+    n => n.content.data?.type === 'motivation'
+  );
+  
+  for (let notification of motivationNotifications) {
+    await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+  }
+  
+  const id = await Notifications.scheduleNotificationAsync({
+    content: {
+      title: '✨ Mensaje de motivación',
+      body: message,
+      data: { type: 'motivation' },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+      hour: hour,
+      minute: minute,
+      repeats: true,
+    },
+  });
+  
+  await updateMotivationalNotificationPreference(
+    true,
+    `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+    message,
+    id
+  );
+  
+  return id;
+}
+
+export async function cancelMotivationalNotification(): Promise<void> {
+  const allNotifications = await Notifications.getAllScheduledNotificationsAsync();
+  const motivationNotifications = allNotifications.filter(
+    n => n.content.data?.type === 'motivation'
+  );
+  
+  for (let notification of motivationNotifications) {
+    await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+  }
+  
+  await updateMotivationalNotificationPreference(false);
 }

@@ -1,7 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { initNotifications, fetchNotificationsFromBackend } from './services/notificationService';
 
 export default function App() {
+  useEffect(() => {
+    const setupNotifications = async () => {
+      await initNotifications();
+      await fetchNotificationsFromBackend();
+    };
+    
+    setupNotifications();
+  }, []);
+  
   return (
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
